@@ -11,6 +11,7 @@ linux-host/
 fuzz.sh
 TDVF.fd
 initrd.cpio.gz
+ghidra_*_PUBLIC
 
 # IDE
 .vscode/

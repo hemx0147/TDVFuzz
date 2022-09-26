@@ -8,7 +8,8 @@
     kafl_root: "{{ install_root }}/kafl"
     target_root: "{{ install_root }}/targets"
     workdir_root: "{{ install_root }}/workdirs"
-    ghidra_root: "{{ install_root }}/ghidra_10.1.3_PUBLIC"    
+    ghidra_version: "ghidra_10.1.3_PUBLIC"
+    ghidra_root: "{{ install_root }}/{{ ghidra_version }}"
 
   pre_tasks:
     - name: APT update
@@ -29,6 +30,9 @@
     - role: smatch
       tags:
         - smatch
+    - role: ghidra
+      tags:
+        - ghidra
 
   post_tasks:
     - name: Copy bkc folder
@@ -42,3 +46,8 @@
       template:
         src: env.j2
         dest: "{{ install_root }}/env.sh"
+
+    - name: Copy ghidra folder
+      copy:
+        src: "{{ kafl_root }}/{{ ghidra_version }}"
+        dest: "{{ install_root }}/"
