@@ -3,7 +3,7 @@
     http_proxy: "{{ proxy_env.http_proxy | default(lookup('env', 'HTTP_PROXY')) }}"
     https_proxy: "{{ proxy_env.https_proxy | default(lookup('env', 'HTTPS_PROXY')) }}"
   vars:
-    install_root: "{{ playbook_dir | dirname if ansible_connection == 'local' else ansible_env.HOME + '/ccc'}}/.."
+    install_root: "{{ playbook_dir | dirname if ansible_connection == 'local' else ansible_env.HOME + '/ccc'}}"
     bkc_root: "{{ install_root }}/tdx"
     kafl_root: "{{ install_root }}/kafl"
     target_root: "{{ install_root }}/targets"
@@ -33,7 +33,7 @@
   post_tasks:
     - name: Copy bkc folder
       copy:
-        src: "{{ playbook_dir }}/../bkc"
+        src: "{{ playbook_dir }}/bkc"
         dest: "{{ bkc_root }}/"
       when: ansible_connection != 'local'
 
