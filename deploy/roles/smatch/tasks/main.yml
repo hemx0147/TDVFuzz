@@ -16,7 +16,7 @@
 - name: Upload check_host_input-add-a-pattern patch to remote node
   ansible.builtin.copy:
     src: files/0001-Enable-check_host_input-pattern.patch
-    dest: "{{ install_root }}/smatch.patch"
+    dest: "{{ bkc_root }}/smatch.patch"
     mode: '0660'
 
 - name: Check whether git committer identity is configured
@@ -33,7 +33,7 @@
   when: git_config.rc != 0
 
 - name: Apply smatch patch
-  ansible.builtin.command: git am "{{ install_root }}/smatch.patch"  # noqa command-instead-of-module
+  ansible.builtin.command: git am "{{ bkc_root }}/smatch.patch"  # noqa command-instead-of-module
   args:
     chdir: "{{ smatch_root }}"
   changed_when: false
@@ -46,5 +46,5 @@
 
 - name: Delete patch file
   ansible.builtin.file:
-    path: "{{ install_root }}/smatch.patch"
+    path: "{{ bkc_root }}/smatch.patch"
     state: absent
