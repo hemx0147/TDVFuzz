@@ -30,9 +30,6 @@
     - role: smatch
       tags:
         - smatch
-    - role: ghidra
-      tags:
-        - ghidra
 
   post_tasks:
     - name: Copy bkc folder
