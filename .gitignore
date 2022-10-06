@@ -1,17 +1,17 @@
-env.sh
+# directories
 /deploy/venv/
+/kafl
+/tdx/smatch
+/targets
+ghidra_*_PUBLIC
+
+# files
+env.sh
 Pipfile
 Pipfile.lock
-/kafl/
-linux-guest/
-linux-host/
-/tdvf/
-**/smatch/
-/packer/
 fuzz.sh
 TDVF.fd
 initrd.cpio.gz
-ghidra_*_PUBLIC
 
 # IDE
 .vscode/
