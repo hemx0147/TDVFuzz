@@ -3,7 +3,7 @@
 /kafl
 /tdx/smatch
 /targets
-ghidra_*_PUBLIC
+/tools
 
 # files
 env.sh

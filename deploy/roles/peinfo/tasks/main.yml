@@ -1,0 +1,12 @@
+- name: Clone peinfo repo
+  git:
+    repo: "{{ peinfo_url }}"
+    dest: "{{ peinfo_root }}"
+    version: "{{ peinfo_revision }}"
+    force: yes
+
+- name: Build peinfo
+  make:
+    chdir: "{{ peinfo_root }}"
+    params:
+      --jobs: "{{ ansible_processor_nproc }}"
