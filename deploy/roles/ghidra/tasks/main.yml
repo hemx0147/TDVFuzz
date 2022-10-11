@@ -1,0 +1,52 @@
+- name: Ensure required dependencies are installed
+  ansible.builtin.package:
+    name: "{{ item }}"
+  with_items:
+    - openjdk-11-jdk
+    - unzip
+  become: true
+
+- name: Check for Ghidra analyzeHeadless binary's presence in /kafl directory
+  ansible.builtin.stat:
+    path: "{{ kafl_root }}/{{ ghidra_bin_relpath }}"
+  register: stat_ghidra_bin_kafl
+
+- name: Check for Ghidra analyzeHeadless binary's presence in /tools directory
+  ansible.builtin.stat:
+    path: "{{ tools_root }}/{{ ghidra_bin_relpath }}"
+  register: stat_ghidra_bin_tools
+
+- name: Install Ghidra if necessary
+  block:
+    - name: Download Ghidra
+      ansible.builtin.get_url:
+        url: "{{ ghidra_url }}"
+        dest: "{{ kafl_root }}/ghidra.zip"
+        checksum: "sha256:9c73b6657413686c0af85909c20581e764107add2a789038ebc6eca49dc4e812"
+        mode: 0644
+
+    - name: Extract Ghidra
+      ansible.builtin.unarchive:
+        src: "{{ kafl_root }}/ghidra.zip"
+        dest: "{{ kafl_root }}"
+        remote_src: true
+
+    - name: Remove Ghidra archive
+      ansible.builtin.file:
+        path: "{{ kafl_root }}/ghidra.zip"
+        state: absent
+  when: not stat_ghidra_bin_kafl.stat.exists and not stat_ghidra_bin_tools.stat.exists and not ansible_check_mode
+
+- name: Copy Ghidra directory
+  ansible.posix.synchronize:
+    src: "{{ kafl_root }}/{{ ghidra_version }}"
+    dest: "{{ tools_root }}/"
+    recursive: yes
+    checksum: yes
+  when: stat_ghidra_bin_kafl.stat.exists and not stat_ghidra_bin_tools.stat.exists
+
+- name: Delete original Ghidra folder
+  ansible.builtin.file:
+    path: "{{ kafl_root }}/{{ ghidra_version }}"
+    state: absent
+  when: stat_ghidra_bin_kafl.stat.exists and stat_ghidra_bin_tools.stat.exists
