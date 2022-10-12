@@ -38,6 +38,9 @@
     - role: codeql
       tags:
         - codeql
+    - role: edk2
+      tags:
+          - edk2
 
   post_tasks:
     - name: Copy bkc folder
