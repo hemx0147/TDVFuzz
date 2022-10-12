@@ -8,12 +8,12 @@
 
 - name: Check for Ghidra analyzeHeadless binary's presence in /kafl directory
   ansible.builtin.stat:
-    path: "{{ kafl_root }}/{{ ghidra_bin_relpath }}"
+    path: "{{ ghidra_root_old }}/{{ ghidra_bin_relpath }}"
   register: stat_ghidra_bin_kafl
 
 - name: Check for Ghidra analyzeHeadless binary's presence in /tools directory
   ansible.builtin.stat:
-    path: "{{ tools_root }}/{{ ghidra_bin_relpath }}"
+    path: "{{ ghidra_root }}/{{ ghidra_bin_relpath }}"
   register: stat_ghidra_bin_tools
 
 - name: Install Ghidra if necessary
@@ -39,7 +39,7 @@
 
 - name: Copy Ghidra directory
   ansible.posix.synchronize:
-    src: "{{ kafl_root }}/{{ ghidra_version }}"
+    src: "{{ ghidra_root_old }}"
     dest: "{{ tools_root }}/"
     recursive: yes
     checksum: yes
@@ -47,6 +47,6 @@
 
 - name: Delete original Ghidra folder
   ansible.builtin.file:
-    path: "{{ kafl_root }}/{{ ghidra_version }}"
+    path: "{{ ghidra_root_old }}"
     state: absent
   when: stat_ghidra_bin_kafl.stat.exists and stat_ghidra_bin_tools.stat.exists
