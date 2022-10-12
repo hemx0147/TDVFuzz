@@ -30,5 +30,4 @@
   git:
     repo: "{{ codeql_repo_url }}"
     dest: "{{ codeql_repo_root }}"
-    version: "{{ codeql_repo_version }}"
     force: yes

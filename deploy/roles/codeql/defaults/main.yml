@@ -1,5 +1,4 @@
 codeql_basename: 'codeql-home'
-codeql_revision: 'master'
 codeql_root: "{{ tools_root }}/{{ codeql_basename }}"
 
 # codeql binary
@@ -10,4 +9,3 @@ codeql_bin_path: "{{ codeql_bin_root }}/codeql"
 # codeql repo
 codeql_repo_url: https://github.com/github/codeql.git
 codeql_repo_root: "{{ codeql_root }}/codeql-repo"
-codeql_repo_version: "master"
