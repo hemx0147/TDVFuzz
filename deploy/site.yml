@@ -9,6 +9,7 @@
     target_root: "{{ install_root }}/targets"
     workdir_root: "{{ install_root }}/workdirs"
     tools_root: "{{ install_root }}/tools"
+    scripts_root: "{{ install_root }}/scripts"
 
   pre_tasks:
     - name: APT update
@@ -40,10 +41,13 @@
         - codeql
     - role: edk2
       tags:
-          - edk2
+        - edk2
     - role: kafl-edk2
       tags:
-          - kafl-edk2
+        - kafl-edk2
+    - role: scripts
+      tags:
+        - scripts
 
   post_tasks:
     - name: Copy bkc folder
@@ -56,4 +60,4 @@
     - name: Install env file
       template:
         src: env.j2
-        dest: "{{ install_root }}/env.sh"
+        dest: "{{ scripts_root }}/env.sh"
