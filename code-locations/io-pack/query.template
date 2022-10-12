@@ -1,0 +1,23 @@
+/**
+ * @id <q-id>
+ * @name <q-name>
+ * @kind problem
+ * @problem.severity warning
+ * @description Find functions that <q-action> <q-tag>
+ * @tags <q-tag>
+ *       <q-action>
+ */
+
+import cpp
+
+from FunctionCall call, Function target, string target_name, Function parent_fn
+where
+	call.getTarget() = target and 
+	target.getName() = target_name and (
+		target_name = "<q-fname-1>" or
+		target_name = "<q-fname-2>" or
+		target_name = "<q-fname-3>" or
+		target_name = "<q-fname-4>"
+	) and
+	call.getEnclosingFunction() = parent_fn
+select parent_fn, parent_fn.getName()

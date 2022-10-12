@@ -1,6 +1,5 @@
 
-
-DIR_PATH = '../code-locations/io-pack'
+DIR_PATH = '/home/ryannick/tdvfuzz/code-locations/io-pack'
 TEMPLATE = DIR_PATH + '/query.template'
 IO_ACTIONS = ['read', 'write']
 
@@ -105,8 +104,7 @@ def apply_replacement_on_template(template_name: str, comp: str, action: str, ge
 	out_lines = apply_replacement_on_strlist(lines, keyword_replacements, id_prefix=id_prefix)
 	return out_lines
 
-
-def populate_ql_files(template_name: str, components: list[str], actions: list[str], gen_replacement_dict, file_prefix=''):
+def populate_ql_files(template_name: str, components, actions, gen_replacement_dict, file_prefix=''):
 	for comp in components:
 		for action in actions:
 			out_lines = apply_replacement_on_template(template_name, comp, action, gen_replacement_dict, id_prefix=file_prefix)
@@ -122,7 +120,6 @@ def populate_ql_files(template_name: str, components: list[str], actions: list[s
 
 
 if __name__ == '__main__':
-
 	# PIO
 	pio_components = ['pio']
 	populate_ql_files(TEMPLATE, pio_components, IO_ACTIONS, gen_io_std_replacement)
