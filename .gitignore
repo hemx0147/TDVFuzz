@@ -3,7 +3,9 @@
 /kafl
 /tdx/smatch
 /targets
-/tools
+ghidra_*
+peinfo
+codeql-home
 
 # files
 env.sh
