@@ -35,6 +35,9 @@
     - role: ghidra
       tags:
         - ghidra
+    - role: codeql
+      tags:
+        - codeql
 
   post_tasks:
     - name: Copy bkc folder
