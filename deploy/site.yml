@@ -41,6 +41,9 @@
     - role: edk2
       tags:
           - edk2
+    - role: kafl-edk2
+      tags:
+          - kafl-edk2
 
   post_tasks:
     - name: Copy bkc folder
