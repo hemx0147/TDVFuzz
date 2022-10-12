@@ -3,11 +3,6 @@
     path: "{{ codeql_bin_path }}"
   register: stat_codeql_bin
 
-- name: Check for CodeQL repo presence
-  ansible.builtin.stat:
-    path: "{{ codeql_repo_root }}"
-  register: stat_codeql_repo
-
 - name: Create CodeQL directory
   ansible.builtin.file:
     path: "{{ codeql_root }}"
@@ -31,10 +26,9 @@
         state: absent
   when: not stat_codeql_bin.stat.exists and not ansible_check_mode
 
-- name: Install CodeQL repo
+- name: Clone CodeQL repo
   git:
     repo: "{{ codeql_repo_url }}"
     dest: "{{ codeql_repo_root }}"
     version: "{{ codeql_repo_version }}"
     force: yes
-  when: not stat_codeql_repo.stat.exists and not ansible_check_mode
