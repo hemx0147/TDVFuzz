@@ -6,6 +6,7 @@
 ghidra_*
 peinfo
 codeql-home
+/code-locations/**/.cache
 
 # files
 env.sh
