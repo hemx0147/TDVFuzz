@@ -3,7 +3,6 @@
  * @name MSR Write
  * @kind problem
  * @problem.severity warning
- * @description Find functions that write MSR
  * @tags MSR
  *       write
  */

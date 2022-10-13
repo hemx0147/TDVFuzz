@@ -3,7 +3,6 @@
  * @name CR Read
  * @kind problem
  * @problem.severity warning
- * @description Find functions that read CR
  * @tags CR
  *       read
  */

@@ -3,7 +3,6 @@
  * @name MMIO Write
  * @kind problem
  * @problem.severity warning
- * @description Find functions that write MMIO
  * @tags MMIO
  *       write
  */

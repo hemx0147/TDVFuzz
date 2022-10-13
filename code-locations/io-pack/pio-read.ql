@@ -3,7 +3,6 @@
  * @name PIO Read
  * @kind problem
  * @problem.severity warning
- * @description Find functions that read PIO
  * @tags PIO
  *       read
  */

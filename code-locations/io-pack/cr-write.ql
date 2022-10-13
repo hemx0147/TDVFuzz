@@ -3,7 +3,6 @@
  * @name CR Write
  * @kind problem
  * @problem.severity warning
- * @description Find functions that write CR
  * @tags CR
  *       write
  */

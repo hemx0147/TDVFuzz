@@ -3,7 +3,6 @@
  * @name MSR Read
  * @kind problem
  * @problem.severity warning
- * @description Find functions that read MSR
  * @tags MSR
  *       read
  */

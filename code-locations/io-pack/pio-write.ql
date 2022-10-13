@@ -3,7 +3,6 @@
  * @name PIO Write
  * @kind problem
  * @problem.severity warning
- * @description Find functions that write PIO
  * @tags PIO
  *       write
  */

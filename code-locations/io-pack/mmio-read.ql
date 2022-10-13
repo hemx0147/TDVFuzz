@@ -3,7 +3,6 @@
  * @name MMIO Read
  * @kind problem
  * @problem.severity warning
- * @description Find functions that read MMIO
  * @tags MMIO
  *       read
  */

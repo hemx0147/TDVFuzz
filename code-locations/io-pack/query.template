@@ -3,7 +3,6 @@
  * @name <q-name>
  * @kind problem
  * @problem.severity warning
- * @description Find functions that <q-action> <q-tag>
  * @tags <q-tag>
  *       <q-action>
  */
