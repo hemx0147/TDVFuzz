@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/bin/env bash
 
+##
 # Some script description
 # List dependencies, requirements as well as copyrights
-
+#
+#
 # Usage: script-name [OPTION]
 #
 # Options:
@@ -11,6 +13,7 @@
 #   -n NUM        execute function func_with_arg with parameter NUM
 #
 # Some note for script execution.
+##
 
 
 ####################################
@@ -26,9 +29,9 @@
 function usage()
 {
 	# find usage line
-    usage_line=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
+    usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
     # print only usage part
-    tail -n +"$usage_line" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;p'
+    tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
     exit
 }
 
