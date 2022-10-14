@@ -89,7 +89,6 @@ do
             ;;
         '-n')
             [[ -z "$2" ]] && fatal "Missing parameter NUM"
-            echo "call fn with arg $2"
         	shift   # past argument
             shift   # past value
             ;;
