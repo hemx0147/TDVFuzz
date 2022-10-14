@@ -9,14 +9,16 @@ codeql-home
 /code-locations/**/.cache
 /code-locations/*.db
 /code-locations/*-analysis.csv
+/workdirs
 
 # files
 env.sh
 Pipfile
 Pipfile.lock
 fuzz.sh
-TDVF.fd
-initrd.cpio.gz
+/tdx/*.fd
+/tdx/bzImage
+/tdx/initrd.cpio.gz
 
 # IDE
 .vscode/
