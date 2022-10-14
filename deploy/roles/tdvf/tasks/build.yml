@@ -1,21 +1,3 @@
-- name: Install TDVF build dependencies
-  ansible.builtin.package:
-    name:
-      - nasm
-      - iasl
-      - uuid-dev
-      - python
-    state: present
-  become: true
-
-- name: Clone TDVF repo
-  ansible.builtin.git:
-    repo: "{{ tdvf_url }}"
-    dest: "{{ tdvf_root }}"
-    version: "{{ tdvf_revision | default(omit) }}"
-    depth: "{{ git_clone_depth | default(omit) }}"
-    force: true
-
 - name: Build BaseTools
   ansible.builtin.make:
     chdir: "{{ tdvf_root }}/BaseTools"
