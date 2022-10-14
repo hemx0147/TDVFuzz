@@ -42,22 +42,18 @@
     - role: edk2
       tags:
         - edk2
-    - role: kafl-edk2
-      tags:
-        - kafl-edk2
     - role: scripts
       tags:
         - scripts
 
-  post_tasks:
-    - name: Copy bkc folder
-      copy:
-        src: "{{ playbook_dir }}/bkc"
-        dest: "{{ bkc_root }}/"
-      when: ansible_connection != 'local'
+  # post_tasks:
+  #   - name: Copy bkc folder
+  #     copy:
+  #       src: "{{ playbook_dir }}/bkc"
+  #       dest: "{{ bkc_root }}/"
+  #     when: ansible_connection != 'local'
 
-  post_tasks:
-    - name: Install env file
-      template:
-        src: env.j2
-        dest: "{{ scripts_root }}/env.sh"
+  #   - name: Install env file
+  #     template:
+  #       src: env.j2
+  #       dest: "{{ scripts_root }}/env.sh"

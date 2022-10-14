@@ -1,4 +1,0 @@
-kafl_edk2_url: https://github.com/IntelLabs/kafl.edk2.git
-kafl_edk2_basename: 'kafl.edk2'
-kafl_edk2_version: 'TDVF_fuzz_hello'
-kafl_edk2_root: "{{ target_root }}/{{ kafl_edk2_basename }}"
