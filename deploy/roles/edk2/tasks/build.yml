@@ -1,0 +1,13 @@
+- name: Build BaseTools
+  make:
+    chdir: "{{ edk2_root }}/BaseTools"
+    params:
+      --jobs: "{{ ansible_processor_nproc }}"
+
+- name: Build OVMF
+  shell: >
+    source edksetup.sh --reconfig &&
+    build -n $(nproc) -p OvmfPkg/OvmfPkgX64.dsc -t GCC5 -a X64
+  args:
+    executable: /bin/bash
+    chdir: "{{ edk2_root }}"
