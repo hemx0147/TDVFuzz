@@ -21,6 +21,21 @@
   args:
     chdir: "{{ tdvf_root }}"
 
+- name: Upload Nyx host version patch to remote node
+  copy:
+    src: files/0001-Update-Nyx-host-version.patch
+    dest: "{{ bkc_root }}/tdvf.patch"
+
+- name: Apply Nyx host version patch
+  command: git am "{{ bkc_root }}/tdvf.patch"
+  args:
+    chdir: "{{ tdvf_root }}"
+
+- name: Delete patch file
+  file:
+    path: "{{ bkc_root }}/tdvf.patch"
+    state: absent
+
 - name: Download TDVF binary
   ansible.builtin.get_url:
     url: https://github.com/IntelLabs/kafl.edk2/releases/download/tdvf-sdv-v0.1/TDVF_sdv_1G.fd
