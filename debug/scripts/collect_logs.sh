@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: adapt this script to new repo structure
+
 # Collect log files produced by kAFL.
 # This script must be run from within the kAFL environment.
 
