@@ -2,7 +2,6 @@
 
 ##
 # Print the memory range of the TDVF SecMain module .text section.
-# The information is acquired from TDVF debug build files.
 #
 # Usage: get_sec_range.sh [OPTION] [BUILDDIR]
 #
@@ -12,6 +11,8 @@
 #
 # Parameters:
 #   BUILDDIR    Path to the EDK2/TDVF Build directory (default: TDVF_ROOT/Build)
+##
+# The information is acquired from TDVF debug build files.
 ##
 
 
@@ -26,13 +27,23 @@ VERBOSE=0
 # Function Definitions
 ####################################
 
-# print help / script usage given above in comments
+# print script usage information given above in comments
 function usage()
 {
 	# find usage line
-    usage_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
+    usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
     # print only usage part
-    tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
+    tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
+    exit
+}
+
+# print help text given above in comments
+function help()
+{
+	# find usage line
+    help_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
+    # print only usage part
+    tail -n +"$help_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
     exit
 }
 
@@ -71,7 +82,7 @@ while [[ "$#" -gt 0 ]]
 do
 	case "$1" in
         '-h'|'--help')
-            usage
+            help
             ;;
         '-v')
             VERBOSE=1
