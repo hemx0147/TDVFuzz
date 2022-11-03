@@ -1,27 +1,33 @@
 <h1 align="center">
-  <br>Linux Security Hardening for Confidential Compute</br>
+  <br>TDVFuzz: Fuzzing Intel's Trust Domain Virtual Firmware</br>
 </h1>
 
-<p align="center">
+<!-- <p align="center">
   <a href="https://github.com/intel/ccc-linux-guest-hardening/actions/workflows/ci.yml">
     <img src="https://github.com/intel/ccc-linux-guest-hardening/actions/workflows/ci.yml/badge.svg" alt="CI">
   </a>
-</p>
+</p> -->
 
-This project contains tools, scripts, and _best-known-configuration_ (BKC) for
-Linux guest kernel hardening in the context of Confidential Cloud Computing threat
-model.
+This project contains tools, scripts and documents for fuzzing Intel TDVF in the context of Confidential Cloud Computing threat model.
 
 All components and scripts are provided for research and validation purposes only.
 
 # Project overview:
 
-In the [`bkc`](https://github.com/intel/ccc-linux-guest-hardening/tree/master/bkc) directory, you will find:
+After running the repository deployment task, the repo will be structured as follows:
+- [`workdir`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir): the main working directory containing the fuzzer script
+- [`code-locations`](https://github.com/hemx0147/TDVFuzz/tree/master/code-locations): scripts and other tools for finding critical code locations in TDVF
+- [`debug`](https://github.com/hemx0147/TDVFuzz/tree/master/debug): scripts and other tools regarding bug analysis & debugging of TDVF
+- [`scripts`](https://github.com/hemx0147/TDVFuzz/tree/master/scripts): a general directory containing miscellaneous scripts
+- `targets`: fuzzing targets including Tianocore EDK and a fixed TDVF test version
+- `tools`: third-party tools that are useful for this project (e.g. Ghidra, CodeQL, PeInfo)
+- `saved-workdirs`: instances of kAFL working directories (per default only in memory under `/dev/shm`) saved on disk
 
-- [`audit`](https://github.com/intel/ccc-linux-guest-hardening/tree/master/bkc/audit): threat surface enumaration using static analysis
-- [`kafl`](https://github.com/intel/ccc-linux-guest-hardening/tree/master/bkc/kafl): configs and tools for Linux fuzzing with kAFL
-- [`syzkaller`](https://github.com/intel/ccc-linux-guest-hardening/tree/master/bkc/syzkaller): configs and tools for generating guest activity with Syzkaller
-- [`coverage`](https://github.com/intel/ccc-linux-guest-hardening/tree/master/bkc/coverage): tools for matching coverage and trace data against audit list
+Additionally, in the [`workdir/bkc`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc) directory, you will find:
+- [`audit`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/audit): threat surface enumaration using static analysis
+- [`kafl`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/kafl): configs and tools for Linux fuzzing with kAFL
+- [`syzkaller`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/syzkaller): configs and tools for generating guest activity with Syzkaller
+- [`coverage`](https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/coverage): tools for matching coverage and trace data against audit list
 
 # Getting started
 
