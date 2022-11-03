@@ -1,7 +1,7 @@
 # directories
 /deploy/venv/
 /kafl
-/tdx/smatch
+/workdir/smatch
 /targets
 ghidra_*
 peinfo
@@ -9,16 +9,16 @@ codeql-home
 /code-locations/**/.cache
 /code-locations/*.db
 /code-locations/*-analysis.csv
-/workdirs
+/saved-workdirs
 
 # files
 env.sh
 Pipfile
 Pipfile.lock
-fuzz.sh
-/tdx/*.fd
-/tdx/bzImage
-/tdx/initrd.cpio.gz
+/workdir/fuzz.sh
+/workdir/*.fd
+/workdir/bzImage
+/workdir/initrd.cpio.gz
 
 # IDE
 .vscode/
