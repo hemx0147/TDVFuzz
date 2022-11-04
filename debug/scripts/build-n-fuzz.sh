@@ -1,7 +1,6 @@
 #!/bin/env bash
 
 # TODO: add verbose option
-# TODO: add rebuild tdvf option
 # TODO: linux boot fuzzing setup is only required because fuzz.sh was not yet updated -> update fuzz.sh
 
 ##
@@ -14,10 +13,10 @@
 # Usage: build-n-fuzz.sh [OPTION]
 #
 # Options:
-#   -h, --help    Display this help text
-#   -e EDKDIR     The EDK2 repository (default: TDVF_ROOT)
-#   -b            Rebuild TDVF
-#   -c            Copy log files from KAFL_WORKDIR to current working directory
+#   -h, --help      Display this help text
+#   -c [LOG_DIR]    Copy log files from KAFL_WORKDIR into LOG_DIR (default: ./logs)
+#   -e EDKDIR       The EDK2 repository (default: TDVF_ROOT)
+#   -b              Rebuild TDVF
 ##
 # Log files include hprintf-, serial- & debug logs and will be copied to a
 # directory "logs" in the current working directory.
@@ -101,10 +100,10 @@ function edk_setup()
 # collect logfiles produced by fuzzer (overwrite by default)
 function copy_logs()
 {
-    logdir="$1"
     echo "Collecting logfiles..."
-    [[ -d $logdir ]] && rm -rf $logdir/* || mkdir $logdir
-    cp $KAFL_WORKDIR/*.log $logdir
+    [[ -d $LOG_DIR ]] && rm -rf $LOG_DIR/* || mkdir $LOG_DIR
+    cp $KAFL_WORKDIR/*.log $LOG_DIR
+    echo "Log files saved to $LOG_DIR"
 }
 
 # build TDVF (overwrites existing files by default)
@@ -166,8 +165,13 @@ do
             help
             ;;
         '-c')
+            if [[ "$2" != -* ]]
+            then
+              [[ -n "$2" ]] && LOG_DIR="$2"
+              shift   # past value
+            fi
             COLLECT_LOGS=1
-        	shift   # past argument
+            shift   # past argument
             ;;
         '-b')
             REBUILD_TDVF=1
@@ -211,9 +215,8 @@ pushd $BKC_ROOT > /dev/null
 timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
 popd > /dev/null
 
-
 # collect logfiles from KAFL_WORKDIR
-[[ $COLLECT_LOGS -eq 1 ]] && copy_logs $LOG_DIR
+[[ $COLLECT_LOGS -eq 1 ]] && copy_logs
 
 echo "done."
 exit 0
