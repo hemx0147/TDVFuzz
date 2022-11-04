@@ -4,14 +4,13 @@
 # Some script description
 # List dependencies, requirements as well as copyrights
 #
-#
 # Usage: script-name [OPTION]
 #
 # Options:
 #   -h, --help    display this help text
 #   -f, --func    execute function func
 #   -n NUM        execute function func_with_arg with parameter NUM
-#
+##
 # Some note for script execution.
 ##
 
@@ -25,13 +24,23 @@
 # Function Definitions
 ####################################
 
-# print help / script usage given above in comments
+# print script usage information given above in comments
 function usage()
 {
 	# find usage line
     usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
     # print only usage part
     tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
+    exit
+}
+
+# print help text given above in comments
+function help()
+{
+	# find usage line
+    help_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
+    # print only usage part
+    tail -n +"$help_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
     exit
 }
 
