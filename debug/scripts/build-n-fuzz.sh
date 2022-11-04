@@ -18,8 +18,8 @@
 #   -b              Rebuild TDVF
 #   -v              print verbose output
 ##
-# Log files include hprintf-, serial- & debug logs and will be copied to a
-# directory "logs" in the current working directory.
+# Log files include hprintf-, serial- & debug logs and will be copied to
+# directory LOGDIR (default: ./logs).
 #
 # Note: currently this script requires complete Linux Boot Fuzzing setup as specified here:
 # https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/kafl#linux-boot-fuzzing
@@ -79,6 +79,7 @@ function fatal()
     exit 1
 }
 
+# only print if VERBOSE flag is set
 function verbose_print()
 {
     [[ $VERBOSE -eq 1 ]] && echo $1
@@ -94,7 +95,7 @@ function edk_setup()
     	verbose_print "Building BaseTools..."
         make -C BaseTools
     else
-        verbose_print "Using EDK BaseTools at $PWD/BaseTools"
+        verbose_print "Using EDK BaseTools at $(realpath $EDK_DIR/BaseTools)"
     fi
 
     if [[ -z "$WORKSPACE" || -z "$EDK_TOOLS_PATH" || -z "$CONF_PATH" ]]
@@ -113,7 +114,7 @@ function copy_logs()
     verbose_print "Collecting logfiles..."
     [[ -d $LOG_DIR ]] && rm -rf $LOG_DIR/* || mkdir $LOG_DIR
     cp $KAFL_WORKDIR/*.log $LOG_DIR
-    verbose_print "Log files saved to $LOG_DIR"
+    verbose_print "Log files saved to $(realpath $LOG_DIR)"
 }
 
 # build TDVF (overwrites existing files by default)
@@ -128,10 +129,15 @@ function build_and_link_tdvf()
     [[ -f $SEC_MAP ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     popd > /dev/null
 
-    # copy TDVF image & create symlink
-    verbose_print "Creating TDVF symlink in $BKC_ROOT..."
+    # copy TDVF image
+    verbose_print "Copying TDVF image..."
     cp $TDVF_BIN $BKC_ROOT/$TDVF_IMG_NAME
+    verbose_print "TDVF image copied to $(realpath $BKC_ROOT)"
+
+    # create TDVF symlink
+    verbose_print "Creating TDVF symlink..."
     ln -fs $BKC_ROOT/$TDVF_IMG_NAME $BKC_ROOT/$TDVF_LINK_NAME
+    verbose_print "Symlink $TDVF_IMG_NAME -> $TDVF_LINK_NAME created"
 }
 
 # get Intel PT code range for SecMain module
