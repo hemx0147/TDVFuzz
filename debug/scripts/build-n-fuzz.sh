@@ -7,13 +7,9 @@
 ##
 # This script performs the following actions:
 #   - set up EDK2 environment in TDVF_ROOT
-#   - build custom TDVF (requires edksetup environment)
-#   - create TDVF symlink in BKC_ROOT
+#   - (re-)build custom TDVF & create TDVF symlink in BKC_ROOT (optional)
 #   - start fuzzer for a few seconds (requires kafl environment)
-#
-# Requires complete Linux Boot Fuzzing setup as specified here:
-# https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/kafl#linux-boot-fuzzing
-#
+#   - copy fuzzing session log files (optional)
 #
 # Usage: build-n-fuzz.sh [OPTION]
 #
@@ -25,6 +21,9 @@
 ##
 # Log files include hprintf-, serial- & debug logs and will be copied to a
 # directory "logs" in the current working directory.
+#
+# Note: currently this script requires complete Linux Boot Fuzzing setup as specified here:
+# https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/kafl#linux-boot-fuzzing
 ##
 
 
