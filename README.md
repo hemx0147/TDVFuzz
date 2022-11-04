@@ -52,11 +52,11 @@ sudo apt-get install python3 python3-venv
 
 ## Installation
 
-Clone this repo to a new directory, e.g. `~/tdx`:
+Clone this repo to a new directory, e.g. `~/tdvfuzz`:
 
 ```shell
-git clone https://github.com/intel/ccc-linux-guest-hardening ~/tdx
-cd ~/tdx
+git clone git@github.com:hemx0147/TDVFuzz.git tdvfuzz
+cd ~/tdvfuzz
 ```
 
 We use Ansible playbooks to support local or remote installation.

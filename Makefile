@@ -30,9 +30,9 @@ deploy:
 	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)
 
 env: SHELL:=bash
-env: env.sh
+env: scripts/env.sh
 	@echo "Entering environment in sub-shell. Exit with 'Ctrl-d'."
-	@PROMPT_COMMAND='source env.sh; unset PROMPT_COMMAND' $(SHELL)
+	@PROMPT_COMMAND='source scripts/env.sh; unset PROMPT_COMMAND' $(SHELL)
 
 auditconf := bkc/kafl/linux_kernel_tdx_guest.config
 auditlogs := smatch_warns_annotated.txt
