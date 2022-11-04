@@ -62,7 +62,7 @@ function fatal()
 # only print if VERBOSE flag is set
 function verbose_print()
 {
-    [[ $VERBOSE -eq 1 ]] && echo $1
+    [[ $VERBOSE -eq 1 ]] && echo "$1"
 }
 
 # collect logfiles produced by fuzzer (overwrite by default)

@@ -22,7 +22,6 @@
 # Global Variables
 ####################################
 WORKDIR=$KAFL_WORKDIR
-VERBOSE=0
 
 ####################################
 # Function Definitions
