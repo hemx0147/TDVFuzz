@@ -1,6 +1,5 @@
 #!/bin/env bash
 
-# TODO: add verbose option
 # TODO: linux boot fuzzing setup is only required because fuzz.sh was not yet updated -> update fuzz.sh
 
 ##
@@ -17,6 +16,7 @@
 #   -c [LOG_DIR]    Copy log files from KAFL_WORKDIR into LOG_DIR (default: ./logs)
 #   -e EDKDIR       The EDK2 repository (default: TDVF_ROOT)
 #   -b              Rebuild TDVF
+#   -v              print verbose output
 ##
 # Log files include hprintf-, serial- & debug logs and will be copied to a
 # directory "logs" in the current working directory.
@@ -30,8 +30,11 @@
 # Global Variables
 ####################################
 
+# command line argument flags
 COLLECT_LOGS=0
 REBUILD_TDVF=0
+VERBOSE=0
+
 EDK_DIR="$TDVF_ROOT"
 TDVF_DSC="$EDK_DIR/OvmfPkg/OvmfPkgX64.dsc"
 BUILD_DIR="$EDK_DIR/Build/OvmfX64/DEBUG_GCC5/FV"
@@ -76,6 +79,11 @@ function fatal()
     exit 1
 }
 
+function verbose_print()
+{
+    [[ $VERBOSE -eq 1 ]] && echo $1
+}
+
 # set up EDK build environment (env will be active only for this script instance)
 function edk_setup()
 {
@@ -83,16 +91,18 @@ function edk_setup()
     num_build_files=$(find BaseTools -type f -name "*.pyc" -or -name "*.o" | wc -l)
     if [[ $num_build_files -eq 0 ]]
     then
-    	echo "Building BaseTools..."
+    	verbose_print "Building BaseTools..."
         make -C BaseTools
+    else
+        verbose_print "Using EDK BaseTools at $PWD/BaseTools"
     fi
 
     if [[ -z "$WORKSPACE" || -z "$EDK_TOOLS_PATH" || -z "$CONF_PATH" ]]
     then
-        echo "Setting up EDK build environment..."
-        source edksetup.sh --reconfig
+        verbose_print "Setting up EDK build environment..."
+        [[ $VERBOSE -eq 1 ]] && source edksetup.sh --reconfig || source edksetup.sh --reconfig > /dev/null
     else
-        echo "EDK environment already set up."
+        verbose_print "EDK environment already set up."
     fi
     popd > /dev/null
 }
@@ -100,16 +110,16 @@ function edk_setup()
 # collect logfiles produced by fuzzer (overwrite by default)
 function copy_logs()
 {
-    echo "Collecting logfiles..."
+    verbose_print "Collecting logfiles..."
     [[ -d $LOG_DIR ]] && rm -rf $LOG_DIR/* || mkdir $LOG_DIR
     cp $KAFL_WORKDIR/*.log $LOG_DIR
-    echo "Log files saved to $LOG_DIR"
+    verbose_print "Log files saved to $LOG_DIR"
 }
 
 # build TDVF (overwrites existing files by default)
 function build_and_link_tdvf()
 {
-    echo "Building TDVF..."
+    verbose_print "Building TDVF..."
 
     # rebuild TDVF
     pushd $EDK_DIR > /dev/null
@@ -119,7 +129,7 @@ function build_and_link_tdvf()
     popd > /dev/null
 
     # copy TDVF image & create symlink
-    echo "Creating TDVF symlink in $BKC_ROOT..."
+    verbose_print "Creating TDVF symlink in $BKC_ROOT..."
     cp $TDVF_BIN $BKC_ROOT/$TDVF_IMG_NAME
     ln -fs $BKC_ROOT/$TDVF_IMG_NAME $BKC_ROOT/$TDVF_LINK_NAME
 }
@@ -127,7 +137,7 @@ function build_and_link_tdvf()
 # get Intel PT code range for SecMain module
 function get_ipt_range()
 {
-    echo "Obtaining Intel PT code range..."
+    verbose_print "Obtaining Intel PT code range..."
     if [[ -f "$SEC_RANGE_SCRIPT" ]]
     then
         # call SEC range script since it exists in CWD
@@ -146,7 +156,7 @@ function get_ipt_range()
     [[ $ipt_start =~ $re_addr ]] || fatal "Bad format of IPT range start $ipt_start. Check $SEC_MAP for potential issues."
     [[ $ipt_end =~ $re_addr ]] || fatal "Bad format of IPT range end $ipt_start. Check $SEC_MAP for potential issues."
 
-    echo "Using Intel PT code range $IPT_RANGE"
+    verbose_print "Using Intel PT code range $IPT_RANGE"
 }
 
 
@@ -183,6 +193,10 @@ do
         	shift   # past argument
             shift   # past value
             ;;
+        '-v')
+            VERBOSE=1
+            shift   # past argument
+            ;;
         -*|--*)
         	fatal "Unknown option $1"
             ;;
@@ -210,7 +224,7 @@ edk_setup
 get_ipt_range
 
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
-echo "Starting fuzzer for a few seconds..."
+verbose_print "Running fuzzer for a few seconds..."
 pushd $BKC_ROOT > /dev/null
 timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
 popd > /dev/null
@@ -218,5 +232,5 @@ popd > /dev/null
 # collect logfiles from KAFL_WORKDIR
 [[ $COLLECT_LOGS -eq 1 ]] && copy_logs
 
-echo "done."
+verbose_print "Done."
 exit 0
