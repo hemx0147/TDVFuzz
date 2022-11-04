@@ -10,6 +10,7 @@
 #   -h, --help    display this help text
 #   -f, --func    execute function func
 #   -n NUM        execute function func_with_arg with parameter NUM
+#   -v            print verbose output
 ##
 # Some note for script execution.
 ##
@@ -18,7 +19,7 @@
 ####################################
 # Global Variables
 ####################################
-
+VERBOSE=0
 
 ####################################
 # Function Definitions
@@ -50,6 +51,12 @@ function fatal()
     [[ -n "$1" ]] && echo "Error: $1"; echo
     usage >&2
     exit 1
+}
+
+# only print if VERBOSE flag is set
+function verbose_print()
+{
+    [[ $VERBOSE -eq 1 ]] && echo $1
 }
 
 # description of func
@@ -90,7 +97,7 @@ while [[ "$#" -gt 0 ]]
 do
 	case "$1" in
         '-h'|'--help')
-            usage
+            help
             ;;
         '-f'|'--func')
             func
@@ -101,12 +108,15 @@ do
         	shift   # past argument
             shift   # past value
             ;;
+        '-v')
+            VERBOSE=1
+            shift   # past argument
+            ;;
         -*|--*)
         	fatal "Unknown option $1"
             ;;
         *)
             POSITIONAL_ARGS+=("$1") # save positional arg
-            echo "$1"
             shift   # past argument
             ;;
     esac
@@ -116,4 +126,5 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 # do something
 echo "Hello World"
+verbose_print "This text is shown only when verbose flag is set."
 exit 0
