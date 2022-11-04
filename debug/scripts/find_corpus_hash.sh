@@ -10,6 +10,7 @@
 #   -h, --help    Display this help text
 #   -w WORKDIR    The kAFL working directory with logs/, metadata/ and corpus/
 #                 directories (default: KAFL_WORKDIR)
+#   -v            print verbose output
 #
 # Parameters:
 #   FILE    A kAFL findings file with part of corpus hash in filename,
@@ -28,6 +29,7 @@
 ####################################
 WORKDIR=$KAFL_WORKDIR
 FND_NAME=""
+VERBOSE=0
 
 ####################################
 # Function Definitions
@@ -79,11 +81,6 @@ function fatal_no_corpus() {
 # Main()
 ####################################
 
-# check if findings file exists
-# grep partial hash from findings file
-# extract readable metadata info from metadata files & remember name of metadata file (same name as corpus)
-# if partial hash found in metadata content then return metadata file name
-
 # argument parsing
 POSITIONAL_ARGS=()
 while [[ "$#" -gt 0 ]]
@@ -122,41 +119,37 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 # test if necessary directories exist
 LOGS=$(realpath $WORKDIR/logs)
-CORPUS_BASE=$(realpath $WORKDIR/corpus)
-CORPUS=$(realpath $CORPUS_BASE/$FND_TYPE)
+CORPUS_BASE_DIR=$(realpath $WORKDIR/corpus)
 METADATA=$(realpath $WORKDIR/metadata)
 [[ -d $WORKDIR ]] || fatal "Could not find kafl working directory $WORKDIR"
 [[ -d $LOGS ]] || fatal "Could not find logs/ folder in $WORKDIR."
-[[ -d $CORPUS_BASE ]] || fatal "Could not find corpus/ folder in $WORKDIR."
+[[ -d $CORPUS_BASE_DIR ]] || fatal "Could not find corpus/ folder in $WORKDIR."
 [[ -d $METADATA ]] || fatal "Could not find metadata/ folder in $WORKDIR."
 
 FND_PATH=$LOGS/$FND_NAME
 FND_TYPE=$(echo $FND_NAME | sed 's/_.*//')  # type of finding (crash/kasan/timeout)
 [[ -f $FND_PATH ]] || fatal "Could not find findings file $FND_NAME in $LOGS."
-[[ -d $CORPUS ]] || fatal "Could not find $FND_TYPE/ folder in $CORPUS_BASE."
 
 # grep partial hash from findings file
 FND_HASH=$(echo $FND_NAME | sed 's/.*_//' | tr -d ".log" )
-# echo "$FND_HASH"
+verbose_print "searching for hash $FND_HASH..."
 
 # extract readable info from metadata files & match corpus hash to node
 for node in $(ls $METADATA)
 do
-    # echo "checking $node"
+    verbose_print "checking $node..."
     PAYLOAD=$(echo $node | sed 's/node/payload/')
     CORPUS_HASH=$(mcat.py $METADATA/$node | grep "hash" | cut -c 20-35)
     
-    # echo "$CORPUS_HASH"
+    # verbose_print "$CORPUS_HASH"
     if [[ $CORPUS_HASH == *"$FND_HASH"* ]]
     then
-        # echo "matching hash found: $PAYLOAD"
-        match=$(find $CORPUS_BASE -type f -name $PAYLOAD)
-        [[ -z "$match" ]] && fatal_no_corpus $FND_NAME $CORPUS_HASH $PAYLOAD $CORPUS
-        # echo "$PAYLOAD: $CORPUS_HASH ($CORPUS/$PAYLOAD)"
+        verbose_print "matching hash for $FND_NAME found: $PAYLOAD - $CORPUS_HASH"
+        match=$(find $CORPUS_BASE_DIR -type f -name $PAYLOAD)
+        [[ -z "$match" ]] && fatal_no_corpus $FND_NAME $CORPUS_HASH $PAYLOAD $CORPUS_BASE_DIR
         echo "$match"
         exit 0
     fi
 done
 
-echo "loop done"
-fatal_no_corpus $FND_NAME $CORPUS_HASH $PAYLOAD $CORPUS
+fatal "Could not find matching corpus for partial hash $FND_HASH"
