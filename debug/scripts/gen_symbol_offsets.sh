@@ -73,6 +73,12 @@ function fatal()
     exit 1
 }
 
+# only print if VERBOSE flag is set
+function verbose_print()
+{
+  [[ $VERBOSE -eq 1 ]] echo "$1"
+}
+
 # print module + memory address; prepend "add-symbol-file" if output should be script
 function print()
 {
@@ -82,7 +88,7 @@ function print()
 
   if [[ $PRINT_SCRIPT -eq 1 ]]
   then
-    [[ $VERBOSE -eq 1 ]] && echo "saving results in $SCRIPT_NAME."
+    verbose_print "saving results in $SCRIPT_NAME."
     echo "add-symbol-file $DEBUG_FILE $MODULE_ADDR" >> $SCRIPT_NAME
   else
     echo "$MODULE_NAME $MODULE_ADDR"
@@ -95,7 +101,7 @@ function print_secmain_symbols()
   DEBUG_FILE="SecMain.debug"
   FILE_BASENAME="SecMain"
 
-  [[ $VERBOSE -eq 1 ]] && echo "searching symbols for module ${FILE_BASENAME}..."
+  verbose_print "searching symbols for module ${FILE_BASENAME}..."
 
   SEC_MAP="`find $BUILD_DIR -type f -name 'SECFV.Fv.map'`"
   [[ -z ${SEC_MAP} ]] && fatal "Could not find SECFV map file in build directory. Consider rebuilding OVMF."
@@ -122,7 +128,7 @@ function print_module_symbols()
     FILE_NAME="`echo ${LINE} | cut -d " " -f6 | tr -d "[:cntrl:]"`"
     FILE_BASENAME=$(echo ${FILE_NAME} | sed -e "s/.efi$//")
 
-    [[ ${VERBOSE} -eq 1 ]] && echo "searching symbols for module ${FILE_BASENAME}..."
+    verbose_print "searching symbols for module ${FILE_BASENAME}..."
 
     EFIFILE="`find ${SEARCH_DIR} -maxdepth 1 -type f -name ${FILE_NAME}`"
     if [[ -z ${EFIFILE} ]]
