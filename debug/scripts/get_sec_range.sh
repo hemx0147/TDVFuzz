@@ -27,6 +27,16 @@ VERBOSE=0
 # Function Definitions
 ####################################
 
+# print help text given above in comments
+function help()
+{
+	# find help-start line (indicated by two '#')
+    help_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
+    # print only help part
+    tail -n +"$help_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
+    exit
+}
+
 # print script usage information given above in comments
 function usage()
 {
@@ -34,16 +44,6 @@ function usage()
     usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
     # print only usage part
     tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
-    exit
-}
-
-# print help text given above in comments
-function help()
-{
-	# find usage line
-    help_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
-    # print only usage part
-    tail -n +"$help_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
     exit
 }
 
