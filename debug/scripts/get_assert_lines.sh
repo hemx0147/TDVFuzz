@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Obtain uniqe assertion reports from all hprintf logs in current directory
-# An assertion report contains the Module, file, line no & violated condition of the triggered assertion
+# Create reports from assertions in all hprintf log files in LOG_DIR directory
+# An assertion report contains Module, file, line no. & violated condition of the triggered assertion
+#
+# Usage: gen_assert_report.sh LOG_DIR
 
-OUTDIR=~/tdvf-hello
-OUTFILE=assertions_unique.txt
+LOG_DIR="$1"
 
-ASSERTS="ASSERT.*/home/ryannick/tdx/kafl/edk\.git/OvmfPkg"
-grep $ASSERTS hprintf_??.log | sort | uniq | awk '{$1=""; print $0}' > $OUTDIR/$OUTFILE
+ASSERTS="ASSERT.*/OvmfPkg"
+grep $ASSERTS $LOG_DIR/hprintf_??.log | sort | uniq | awk '{$1=""; print $0}'
