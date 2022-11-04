@@ -101,7 +101,7 @@ done
 set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 # check whether build dir was specified
-[[ -n $TDVF_BUILD_DIR ]] || fatal "invalid path to TDVF Build directory"
+[[ -n $TDVF_BUILD_DIR || -d $TDVF_BUILD_DIR ]] || fatal "invalid path to TDVF Build directory"
 
 # 1. get .text start from SEC map file
 SEC_MAP="`find $TDVF_BUILD_DIR -type f -name 'SECFV.Fv.map'`"
@@ -118,4 +118,4 @@ TXT_END="$(($TXT_START + $TXT_SIZE))"
 [[ $VERBOSE -eq 1 ]] && print_addresses
 
 # 4. print code range
-printf "code range: 0x%.10x-0x%.10x\n" "$TXT_START" "$TXT_END"
+printf "0x%.10x-0x%.10x\n" "$TXT_START" "$TXT_END"
