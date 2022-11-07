@@ -5,16 +5,16 @@
 #
 # Usage: find_io_functions.sh SEARCHDIR
 #
-# @param SEARCHDIR	The directory where the search should be conducted
+# @param SEARCHDIR  The directory where the search should be conducted
 ##
 
 # TODO: change output to only show function names
 # TODO: add verbose option that shows more readable output
 
 find_occurences() {
-	search_dir="$1"
-	fname="$2"
-	find "${search_dir}" -name "*.h" -exec grep "^[[:alnum:]]*${fname}[[:alnum:]]*" {} \; | tr -d ' (' | sort -r | uniq
+    search_dir="$1"
+    fname="$2"
+    find "${search_dir}" -name "*.h" -exec grep "^[[:alnum:]]*${fname}[[:alnum:]]*" {} \; | tr -d ' (' | sort -r | uniq
 }
 
 
@@ -23,7 +23,7 @@ find_occurences() {
 function fatal()
 {
     [[ -n "$1" ]] && echo "Error: $1"; echo
-	echo "Usage: find_io_functions.sh SEARCHDIR" >&2
+    echo "Usage: find_io_functions.sh SEARCHDIR" >&2
     exit 1
 }
 
@@ -39,14 +39,14 @@ SEARCH_DIR="$1"
 # search for R/W functions for different I/O components
 for component in 'Cr' 'Msr' 'Mmio' 'Pio' 'PciIo' 'VirtIo'
 do
-	echo "### ${component} ###"
-	for action in 'Read' 'Write'
-	do
-		fname1="${action}${component}"
-		find_occurences $SEARCH_DIR $fname1
+    echo "### ${component} ###"
+    for action in 'Read' 'Write'
+    do
+        fname1="${action}${component}"
+        find_occurences $SEARCH_DIR $fname1
 
-		fname2="${component}${action}"
-		find_occurences $SEARCH_DIR $fname2
-	done
-	echo
+        fname2="${component}${action}"
+        find_occurences $SEARCH_DIR $fname2
+    done
+    echo
 done
