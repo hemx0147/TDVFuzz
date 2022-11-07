@@ -8,6 +8,10 @@
 #
 # @param -v         print verbose output
 # @param SEARCHDIR  The directory where the search should be conducted
+#
+# The (non-verbose) output of this script can be used as input for the 
+# populate_io_queries.py script to automatically populate the codeql
+# query pack with the found I/O functions.
 ##
 
 
@@ -16,7 +20,6 @@ find_occurences() {
     fname="$2"
     find "${search_dir}" -name "*.h" -exec grep "^[[:alnum:]]*${fname}[[:alnum:]]*" {} \; | tr -d ' (' | sort -r | uniq
 }
-
 
 # exit with errorcode 1 & print usage.
 # optional argument: print error message.
