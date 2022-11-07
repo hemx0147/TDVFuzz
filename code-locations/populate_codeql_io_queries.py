@@ -1,5 +1,8 @@
+# Populate codeql queries for Pio, Mmio, Virtio, CR and MSR functions based on a query template
 
-DIR_PATH = '/home/ryannick/tdvfuzz/code-locations/io-pack'
+# path to code-locations directory; the qlpack will be created here
+DIR_PATH = './io-pack'
+# path to the query template
 TEMPLATE = DIR_PATH + '/query.template'
 IO_ACTIONS = ['read', 'write']
 
