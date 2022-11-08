@@ -1,1 +1,0 @@
-add-symbol-file /home/ryannick/tdvfuzz/targets/tdvf/Build/OvmfX64/DEBUG_GCC5/X64/SecMain.debug 0x00fffcc2d4
