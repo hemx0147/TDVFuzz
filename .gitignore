@@ -1,24 +1,25 @@
 # directories
 /deploy/venv/
-/kafl
-/workdir/smatch
-/targets
-ghidra_*
-peinfo
-codeql-home
+/kafl/
+/targets/
 /code-locations/**/.cache
 /code-locations/*.db
 /code-locations/*-analysis.csv
-/saved-workdirs
+/saved-workdirs/
+__pycache__/
+/smatch/
+smatcher.egg-info/
+bkc/coverage/fast_matcher/target/
+
+# tools
+ghidra_*/
+peinfo/
+codeql-home/
 
 # files
 env.sh
 Pipfile
 Pipfile.lock
-/workdir/fuzz.sh
-/workdir/*.fd
-/workdir/bzImage
-/workdir/initrd.cpio.gz
 
 # IDE
 .vscode/
