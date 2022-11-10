@@ -13,9 +13,7 @@ bkc/coverage/fast_matcher/target/
 /workdir/*
 
 # tools
-ghidra_*/
-peinfo/
-codeql-home/
+tools/*
 
 # files
 env.sh
