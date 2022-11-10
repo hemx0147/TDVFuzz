@@ -10,6 +10,7 @@ __pycache__/
 /smatch/
 smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
+/workdir/*
 
 # tools
 ghidra_*/
