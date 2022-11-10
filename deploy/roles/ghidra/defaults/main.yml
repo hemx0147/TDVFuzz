@@ -1,5 +1,5 @@
 ghidra_url: 'https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.3_build/ghidra_10.1.3_PUBLIC_20220421.zip'
 ghidra_version: "ghidra_10.1.3_PUBLIC"
-ghidra_root_old: "{{ kafl_root }}/{{ ghidra_version }}"
+ghidra_root_old: "{{ kafl_install_root }}/{{ ghidra_version }}"
 ghidra_root: "{{ tools_root }}/{{ ghidra_version }}"
 ghidra_bin_relpath: "support/analyzeHeadless"
