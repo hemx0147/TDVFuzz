@@ -1,4 +1,4 @@
-peinfo_url: https://github.com/retrage/peinfo
+peinfo_url: git@github.com:hemx0147/peinfo.git
 peinfo_basename: 'peinfo'
 peinfo_revision: 'master'
 peinfo_root: "{{ tools_root }}/{{ peinfo_basename }}"
