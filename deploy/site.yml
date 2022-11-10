@@ -4,11 +4,9 @@
     https_proxy: "{{ proxy_env.https_proxy | default(lookup('env', 'HTTPS_PROXY')) }}"
   vars:
     install_root: "{{ playbook_dir | dirname if ansible_connection == 'local' else ansible_env.HOME + '/ccc'}}"
-    # TODO: update / fix variables
     workdir: "{{ install_root }}/workdir"
     target_root: "{{ install_root }}/targets"
     tools_root: "{{ install_root }}/tools"
-    scripts_root: "{{ install_root }}/scripts"
 
   pre_tasks:
     - name: APT update
@@ -41,12 +39,9 @@
     - role: edk2
       tags:
         - edk2
-    - role: scripts
-      tags:
-        - scripts
 
   post_tasks:
     - name: Install env file
       template:
         src: env.j2
-        dest: "{{ scripts_root }}/env.sh"
+        dest: "{{ install_root }}/scripts/env.sh"
