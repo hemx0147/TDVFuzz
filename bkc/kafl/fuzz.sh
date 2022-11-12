@@ -15,11 +15,11 @@
 set -e
 set -o pipefail
 
-BIOS_IMAGE=$BKC_ROOT/TDVF.fd
-INITRD_IMAGE=$BKC_ROOT/initrd.cpio.gz
-DEFAULT_SHARE_DIR=$BKC_ROOT/sharedir
+BIOS_IMAGE=$WORKDIR/TDVF.fd
+INITRD_IMAGE=$WORKDIR/initrd.cpio.gz
+DEFAULT_SHARE_DIR=$WORKDIR/sharedir
 DEFAULT_WORK_DIR=$KAFL_WORKDIR
-#DISK_IMAGE=$BKC_ROOT/tdx_overlay1.qcow2
+#DISK_IMAGE=$WORKDIR/tdx_overlay1.qcow2
 
 # limited to 1G due to hardcoded TdHobList in TDVF!
 MEMSIZE=1024
@@ -33,7 +33,7 @@ KERNEL_BUILD_PARAMS="KCFLAGS=-fno-ipa-sra -fno-ipa-cp-clone -fno-ipa-cp"
 # enable TDX workaround in Qemu
 export QEMU_BIOS_IN_RAM=1
 
-# prefer $PWD/sharedir over $BKC_ROOT/sharedir
+# prefer $PWD/sharedir over $WORKDIR/sharedir
 if test -d ./sharedir; then
 	SHARE_DIR=$PWD/sharedir
 else
@@ -376,6 +376,7 @@ ACTION="$1"; shift
 [ "$ACTION" == "-h" ] && usage
 
 test -d "$BKC_ROOT" || fatal "Could not find BKC_ROOT. Check 'env.sh'."
+test -d "$WORKDIR" || fatal "Could not find WORKDIR. Check 'env.sh'."
 test -d "$KAFL_ROOT" || fatal "Could not find KAFL_ROOT. Check 'env.sh'."
 
 test -d $SHARE_DIR || mkdir -p $SHARE_DIR
