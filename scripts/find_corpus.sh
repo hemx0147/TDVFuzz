@@ -27,7 +27,7 @@
 ####################################
 # Global Variables
 ####################################
-WORKDIR=$KAFL_WORKDIR
+WORK_DIR=$KAFL_WORKDIR
 FND_NAME=""
 VERBOSE=0
 
@@ -91,7 +91,7 @@ do
             ;;
         '-w')
             [[ -z "$2" ]] && fatal "Missing parameter WORKDIR"
-            WORKDIR="$2"
+            WORK_DIR="$2"
         	shift   # past argument
             shift   # past value
             ;;
@@ -118,13 +118,13 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
 # test if necessary directories exist
-LOGS=$(realpath $WORKDIR/logs)
-CORPUS_BASE_DIR=$(realpath $WORKDIR/corpus)
-METADATA=$(realpath $WORKDIR/metadata)
-[[ -d $WORKDIR ]] || fatal "Could not find kafl working directory $WORKDIR"
-[[ -d $LOGS ]] || fatal "Could not find logs/ folder in $WORKDIR."
-[[ -d $CORPUS_BASE_DIR ]] || fatal "Could not find corpus/ folder in $WORKDIR."
-[[ -d $METADATA ]] || fatal "Could not find metadata/ folder in $WORKDIR."
+LOGS=$(realpath $WORK_DIR/logs)
+CORPUS_BASE_DIR=$(realpath $WORK_DIR/corpus)
+METADATA=$(realpath $WORK_DIR/metadata)
+[[ -d $WORK_DIR ]] || fatal "Could not find kafl working directory $WORK_DIR"
+[[ -d $LOGS ]] || fatal "Could not find logs/ folder in $WORK_DIR."
+[[ -d $CORPUS_BASE_DIR ]] || fatal "Could not find corpus/ folder in $WORK_DIR."
+[[ -d $METADATA ]] || fatal "Could not find metadata/ folder in $WORK_DIR."
 
 FND_PATH=$LOGS/$FND_NAME
 FND_TYPE=$(echo $FND_NAME | sed 's/_.*//')  # type of finding (crash/kasan/timeout)
