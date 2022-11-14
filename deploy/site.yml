@@ -36,9 +36,9 @@
     - role: codeql
       tags:
         - codeql
-    - role: edk2
+    - role: tdvf
       tags:
-        - edk2
+        - tdvf
 
   post_tasks:
     - name: Install env file
