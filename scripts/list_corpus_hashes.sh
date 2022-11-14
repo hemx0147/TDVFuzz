@@ -21,7 +21,7 @@
 ####################################
 # Global Variables
 ####################################
-WORKDIR=$KAFL_WORKDIR
+WORK_DIR=$KAFL_WORKDIR
 
 ####################################
 # Function Definitions
@@ -71,7 +71,7 @@ do
             ;;
         '-w')
             [[ -z "$2" ]] && fatal "Missing parameter WORKDIR"
-            WORKDIR="$2"
+            WORK_DIR="$2"
         	shift   # past argument
             shift   # past value
             ;;
@@ -91,9 +91,9 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 [[ -z "$KAFL_ROOT" ]] && fatal "Could not find KAFL_ROOT. Verify that kAFL environment is set up."
 
 
-METADATA=$WORKDIR/metadata
-[[ -d $WORKDIR ]] || fatal "Could not find kafl working directory $WORKDIR"
-[[ -d "$METADATA" ]] || fatal "Could not find metadata/ folder in $WORKDIR."
+METADATA=$WORK_DIR/metadata
+[[ -d $WORK_DIR ]] || fatal "Could not find kafl working directory $WORK_DIR"
+[[ -d "$METADATA" ]] || fatal "Could not find metadata/ folder in $WORK_DIR."
 
 # extract readable metadata from metadata files & match corpus hash to node
 for node in $(ls $METADATA)
