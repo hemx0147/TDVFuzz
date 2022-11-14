@@ -19,7 +19,7 @@
 # Global Variables
 ####################################
 IPT_RANGE="0x00fffcc2d4-0x00fffddf92"
-FUZZER="$BKC_ROOT/fuzz.sh"
+FUZZER="$WORKDIR/fuzz.sh"
 RUN_OPTION=0
 
 
