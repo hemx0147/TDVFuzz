@@ -5,7 +5,7 @@
 ##
 # This script performs the following actions:
 #   - set up EDK2 environment in TDVF_ROOT
-#   - (re-)build custom TDVF & create TDVF symlink in BKC_ROOT (optional)
+#   - (re-)build custom TDVF & create TDVF symlink in WORKDIR (optional)
 #   - start fuzzer for a few seconds (requires kafl environment)
 #   - copy fuzzing session log files (optional)
 #
@@ -35,7 +35,7 @@ COLLECT_LOGS=0
 REBUILD_TDVF=0
 VERBOSE=0
 
-EDK_DIR="$TDVF_ROOT"
+EDK_DIR=$(realpath "$TDVF_ROOT")
 TDVF_DSC="$EDK_DIR/OvmfPkg/OvmfPkgX64.dsc"
 BUILD_DIR="$EDK_DIR/Build/OvmfX64/DEBUG_GCC5/FV"
 TDVF_BIN="$BUILD_DIR/OVMF.fd"
@@ -64,6 +64,7 @@ function help()
 function usage()
 {
 	# find usage line
+    echo "input file: '$0'"
     usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
     # print only usage part
     tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
@@ -131,12 +132,12 @@ function build_and_link_tdvf()
 
     # copy TDVF image
     verbose_print "Copying TDVF image..."
-    cp $TDVF_BIN $BKC_ROOT/$TDVF_IMG_NAME
-    verbose_print "TDVF image copied to $(realpath $BKC_ROOT)"
+    cp $TDVF_BIN $WORKDIR/$TDVF_IMG_NAME
+    verbose_print "TDVF image copied to $(realpath $WORKDIR)"
 
     # create TDVF symlink
     verbose_print "Creating TDVF symlink..."
-    ln -fs $BKC_ROOT/$TDVF_IMG_NAME $BKC_ROOT/$TDVF_LINK_NAME
+    ln -fs $WORKDIR/$TDVF_IMG_NAME $WORKDIR/$TDVF_LINK_NAME
     verbose_print "Symlink $TDVF_IMG_NAME -> $TDVF_LINK_NAME created"
 }
 
@@ -195,7 +196,10 @@ do
             ;;
         '-e')
             [[ -z "$2" ]] && fatal "Missing parameter EDKDIR"
-            EDK_DIR="$2"
+            EDK_DIR=$(realpath "$2")
+            BUILD_DIR="$EDK_DIR/Build/OvmfX64/DEBUG_GCC5/FV"
+            TDVF_BIN="$BUILD_DIR/OVMF.fd"
+            SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
         	shift   # past argument
             shift   # past value
             ;;
@@ -216,7 +220,7 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
 # test if in KAFL environment
-[[ -z "$BKC_ROOT" ]] && fatal "Could not find BKC_ROOT. Verify that kAFL environment is set up."
+[[ -z "$WORKDIR" ]] && fatal "Could not find WORKDIR. Verify that kAFL environment is set up."
 [[ -z "$KAFL_ROOT" ]] && fatal "Could not find KAFL_ROOT. Verify that kAFL environment is set up."
 [[ -z "$TDVF_ROOT" ]] && fatal "Could not find TDVF_ROOT. Verify that kAFL environment is set up."
 
@@ -231,7 +235,7 @@ get_ipt_range
 
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 verbose_print "Running fuzzer for a few seconds..."
-pushd $BKC_ROOT > /dev/null
+pushd $WORKDIR > /dev/null
 timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
 popd > /dev/null
 
