@@ -7,7 +7,7 @@
 #
 # Options:
 #   -h, --help    Display this help text
-#   -l LOG_DIR     Save log files in directory LOG_DIR (default: ./logs)
+#   -l LOG_DIR    Save log files in directory LOG_DIR (default: ./logs)
 #   -w WORKDIR    The kAFL working directory (default: KAFL_WORKDIR)
 #   -f            Also copy fuzzer findings
 ##
@@ -24,7 +24,7 @@
 VERBOSE=0
 COPY_FINDINGS=0
 LOG_DIR="./logs"
-WORKDIR="$KAFL_WORKDIR"
+WORK_DIR="$KAFL_WORKDIR"
 
 
 ####################################
@@ -70,7 +70,7 @@ function copy_logs()
 {
     verbose_print "Collecting logfiles..."
     [[ -d $LOG_DIR ]] && rm -rf $LOG_DIR/* || mkdir $LOG_DIR
-    cp $WORKDIR/*.log $LOG_DIR
+    cp $WORK_DIR/*.log $LOG_DIR
     verbose_print "Log files saved to $(realpath $LOG_DIR)"
 }
 
@@ -80,15 +80,15 @@ function copy_findings()
     verbose_print "Collecting findings..."
     [[ -d $LOG_DIR ]] || mkdir $LOG_DIR
 
-    num_findings=$(find $WORKDIR/logs -name "*.log" | wc -l)
+    num_findings=$(find $WORK_DIR/logs -name "*.log" | wc -l)
     if [[ $num_findings -gt 0 ]] 
     then
         findings_dir="$LOG_DIR/findings"
         [[ -d $findings_dir ]] || mkdir $findings_dir
-        cp $WORKDIR/logs/*.log $findings_dir
+        cp $WORK_DIR/logs/*.log $findings_dir
         verbose_print "Findings saved to $(realpath $findings_dir)"
     else
-        verbose_print "No findings to copy from $WORKDIR"
+        verbose_print "No findings to copy from $WORK_DIR"
     fi
 }
 
@@ -112,7 +112,7 @@ do
             ;;
         '-w')
             [[ -z "$2" ]] && fatal "Missing parameter WORKDIR"
-            WORKDIR="$2"
+            WORK_DIR="$2"
         	shift   # past argument
             shift   # past value
             ;;
@@ -136,7 +136,7 @@ done
 set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
-[[ -z $WORKDIR ]] && fatal "invalid path to kAFL working directory"
+[[ -z $WORK_DIR ]] && fatal "invalid path to kAFL working directory"
 [[ -z $LOG_DIR ]] && fatal "invalid path to log directory"
 
 copy_logs
