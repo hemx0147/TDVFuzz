@@ -11,6 +11,7 @@ __pycache__/
 smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
 /workdir/*
+/kafl-workdir
 
 # tools
 tools/*
