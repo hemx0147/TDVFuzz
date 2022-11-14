@@ -1,3 +1,8 @@
+- name: Create directory WORKDIR
+  ansible.builtin.file:
+    path: "{{ workdir }}"
+    state: directory
+
 - name: Link fuzz.sh script into workdir
   ansible.builtin.file:
     src: "{{ install_root }}/bkc/kafl/fuzz.sh"
