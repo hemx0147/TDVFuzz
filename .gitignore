@@ -10,8 +10,8 @@ __pycache__/
 /smatch/
 smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
-/workdir/*
 /kafl-workdir
+/fw-images
 
 # tools
 tools/*
@@ -20,6 +20,10 @@ tools/*
 env.sh
 Pipfile
 Pipfile.lock
+fuzz.sh
+TDVF.fd
+initrd.cpio.gz
+bzImage
 
 # IDE
 .vscode/
