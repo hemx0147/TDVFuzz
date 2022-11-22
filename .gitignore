@@ -10,7 +10,7 @@ __pycache__/
 /smatch/
 smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
-/kafl-workdir
+/workdir
 /fw-images
 
 # tools
