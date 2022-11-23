@@ -11,7 +11,7 @@
     force: yes
 
 - name: Switch to stable branch
-  command: "git switch -c {{ edk2_version }}"
+  command: "git switch -c {{ edk2_branch_name }}"
   args:
     chdir: "{{ edk2_root }}"
   when: not stat_edk2.stat.exists
