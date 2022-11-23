@@ -15,3 +15,9 @@
     src: "/boot/initrd.img-{{ host_kernel_version }}"
     dest: "{{ install_root }}/initrd.cpio.gz"
     state: link
+
+- name: Link kAFL fuzz script
+  ansible.builtin.file:
+    src: "{{ install_root }}/bkc/fuzz.sh"
+    dest: "{{ install_root }}/fuzz.sh"
+    state: link
