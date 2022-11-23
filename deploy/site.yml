@@ -4,7 +4,6 @@
     https_proxy: "{{ proxy_env.https_proxy | default(lookup('env', 'HTTPS_PROXY')) }}"
   vars:
     install_root: "{{ playbook_dir | dirname if ansible_connection == 'local' else ansible_env.HOME + '/ccc'}}"
-    image_root: "{{ install_root }}/fw-images"
 
   pre_tasks:
     - name: APT update
@@ -16,6 +15,9 @@
     - role: bkc
       tags:
         - bkc
+    - role: file-operations
+      tags:
+        - file-operations
     - role: kafl-tdvf
       tags:
         - kafl-tdvf
