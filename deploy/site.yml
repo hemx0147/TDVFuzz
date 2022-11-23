@@ -29,9 +29,6 @@
     - role: peinfo
       tags:
         - peinfo
-    - role: ghidra
-      tags:
-        - ghidra
     - role: codeql
       tags:
         - codeql
