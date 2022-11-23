@@ -11,3 +11,15 @@
   args:
     executable: /bin/bash
     chdir: "{{ edk2_root }}"
+
+- name: Copy TDVF image
+  ansible.builtin.copy:
+    src: "{{ edk2_root }}/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd"
+    dest: "{{ image_root }}/{{ edk2_image }}"
+
+- name: Create TDVF symlink
+  ansible.builtin.file:
+    src: "{{ image_root }}/{{ edk2_image }}"
+    dest: "{{ Install_root }}/TDVF.fd"
+    state: link
+    force: yes
