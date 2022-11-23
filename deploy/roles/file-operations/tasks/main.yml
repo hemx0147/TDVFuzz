@@ -2,3 +2,16 @@
   ansible.builtin.file:
     path: "{{ image_root }}"
     state: directory
+
+- name: Get host kernel version
+  ansible.builtin.shell: >
+    uname -r
+  args:
+    executable: /bin/bash
+  register: host_kernel_version
+  
+- name: Link host kernel initrd
+  ansible.builtin.file:
+    src: "/boot/initrd.img-{{ host_kernel_version }}"
+    dest: "{{ install_root }}/initrd.cpio.gz"
+    state: link
