@@ -19,6 +19,9 @@
     - role: kafl-tdvf
       tags:
         - kafl-tdvf
+    - role: tianocore-tdvf
+      tags:
+        - tianocore-tdvf
     - role: guest
       tags:
         - guest
@@ -31,9 +34,6 @@
     - role: codeql
       tags:
         - codeql
-    - role: tianocore-tdvf
-      tags:
-        - tianocore-tdvf
 
   post_tasks:
     - name: Install env file
