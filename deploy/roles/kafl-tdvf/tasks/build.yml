@@ -12,3 +12,8 @@
     executable: /bin/bash
     chdir: "{{ tdvf_root }}"
   changed_when: false
+
+- name: Copy TDVF image
+  ansible.builtin.copy:
+    src: "{{ tdvf_root }}/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd"
+    dest: "{{ image_root }}/TDVF_hello.fd"
