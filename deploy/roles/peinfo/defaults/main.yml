@@ -1,4 +1,3 @@
 peinfo_url: git@github.com:hemx0147/peinfo.git
-peinfo_basename: 'peinfo'
 peinfo_revision: 'master'
-peinfo_root: "{{ tools_root }}/{{ peinfo_basename }}"
+peinfo_root: "{{ install_root }}/peinfo"
