@@ -4,7 +4,6 @@
     https_proxy: "{{ proxy_env.https_proxy | default(lookup('env', 'HTTPS_PROXY')) }}"
   vars:
     install_root: "{{ playbook_dir | dirname if ansible_connection == 'local' else ansible_env.HOME + '/ccc'}}"
-    workdir: "{{ install_root }}/workdir"
     target_root: "{{ install_root }}/targets"
     tools_root: "{{ install_root }}/tools"
 

@@ -1,15 +1,3 @@
-- name: Create directory WORKDIR
-  ansible.builtin.file:
-    path: "{{ workdir }}"
-    state: directory
-
-- name: Link fuzz.sh script into workdir
-  ansible.builtin.file:
-    src: "{{ install_root }}/bkc/kafl/fuzz.sh"
-    dest: "{{ workdir }}/fuzz.sh"
-    state: link
-    force: yes
-
 - name: Copy BKC folder
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../bkc"
