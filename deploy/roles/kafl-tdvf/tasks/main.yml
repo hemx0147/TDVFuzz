@@ -24,28 +24,33 @@
 - name: Upload Nyx host version patch to remote node
   copy:
     src: files/0001-Update-Nyx-host-version.patch
-    dest: "{{ install_root }}/tdvf.patch"
+    dest: "{{ tdvf_root }}/tdvf.patch"
 
 - name: Apply Nyx host version patch
-  command: git am "{{ install_root }}/tdvf.patch"
+  command: git am "{{ tdvf_root }}/tdvf.patch"
   args:
     chdir: "{{ tdvf_root }}"
 
 - name: Delete patch file
   file:
-    path: "{{ install_root }}/tdvf.patch"
+    path: "{{ tdvf_root }}/tdvf.patch"
     state: absent
 
-- name: Download TDVF binary
+name: Create firmware images directory
+ansible.builtin.file:
+  path: "{{ image_root }}"
+  state: directory
+
+- name: Download TDVF SDV binary
   ansible.builtin.get_url:
     url: https://github.com/IntelLabs/kafl.edk2/releases/download/tdvf-sdv-v0.1/TDVF_sdv_1G.fd
-    dest: "{{ workdir }}/TDVF_SDV.fd"
+    dest: "{{ image_root }}/TDVF_SDV.fd"
     checksum: sha256:12fb25c9338065fcfaac5311e0e72a0fcef7292bb4e470fe4af5d29aca1bba62
     mode: '0660'
 
 - name: Create TDVF symlink
   ansible.builtin.file:
-    src: "{{ workdir }}/TDVF_SDV.fd"
-    dest: "{{ workdir }}/TDVF.fd"
+    src: "{{ image_root }}/TDVF_SDV.fd"
+    dest: "{{ Install_root }}/TDVF.fd"
     state: link
     force: yes
