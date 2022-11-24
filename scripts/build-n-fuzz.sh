@@ -5,7 +5,7 @@
 ##
 # This script performs the following actions:
 #   - set up EDK2 environment in TDVF_ROOT
-#   - (re-)build custom TDVF & create TDVF symlink in WORKDIR (optional)
+#   - (re-)build custom TDVF & create TDVF symlink in project root (optional)
 #   - start fuzzer for a few seconds (requires kafl environment)
 #   - copy fuzzing session log files (optional)
 #
@@ -22,7 +22,7 @@
 # directory LOGDIR (default: ./logs).
 #
 # Note: currently this script requires complete Linux Boot Fuzzing setup as specified here:
-# https://github.com/hemx0147/TDVFuzz/tree/master/workdir/bkc/kafl#linux-boot-fuzzing
+# https://github.com/hemx0147/TDVFuzz/tree/master/bkc/kafl#linux-boot-fuzzing
 ##
 
 
@@ -132,12 +132,12 @@ function build_and_link_tdvf()
 
     # copy TDVF image
     verbose_print "Copying TDVF image..."
-    cp $TDVF_BIN $WORKDIR/$TDVF_IMG_NAME
-    verbose_print "TDVF image copied to $(realpath $WORKDIR)"
+    cp $TDVF_BIN $IMAGE_ROOT/$TDVF_IMG_NAME
+    verbose_print "TDVF image copied to $(realpath $IMAGE_ROOT)"
 
     # create TDVF symlink
     verbose_print "Creating TDVF symlink..."
-    ln -fs $WORKDIR/$TDVF_IMG_NAME $WORKDIR/$TDVF_LINK_NAME
+    ln -fs $IMAGE_ROOT/$TDVF_IMG_NAME $BKC_ROOT/$TDVF_LINK_NAME
     verbose_print "Symlink $TDVF_IMG_NAME -> $TDVF_LINK_NAME created"
 }
 
@@ -220,9 +220,10 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
 # test if in KAFL environment
-[[ -z "$WORKDIR" ]] && fatal "Could not find WORKDIR. Verify that kAFL environment is set up."
+[[ -z "$BKC_ROOT" ]] && fatal "Could not find BKC_ROOT. Verify that kAFL environment is set up."
 [[ -z "$KAFL_ROOT" ]] && fatal "Could not find KAFL_ROOT. Verify that kAFL environment is set up."
 [[ -z "$TDVF_ROOT" ]] && fatal "Could not find TDVF_ROOT. Verify that kAFL environment is set up."
+[[ -z "$IMAGE_ROOT" ]] && fatal "Could not find IMAGE_ROOT. Verify that kAFL environment is set up."
 
 # set up EDK environment if necessary
 edk_setup
@@ -235,7 +236,7 @@ get_ipt_range
 
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 verbose_print "Running fuzzer for a few seconds..."
-pushd $WORKDIR > /dev/null
+pushd $BKC_ROOT > /dev/null
 timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
 popd > /dev/null
 
