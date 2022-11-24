@@ -12,12 +12,12 @@
   
 - name: Link host kernel initrd
   ansible.builtin.file:
-    src: "/boot/initrd.img-{{ host_kernel_version }}"
+    src: "/boot/initrd.img-{{ host_kernel_version.stdout }}"
     dest: "{{ install_root }}/initrd.cpio.gz"
     state: link
 
 - name: Link kAFL fuzz script
   ansible.builtin.file:
-    src: "{{ install_root }}/bkc/fuzz.sh"
+    src: "{{ install_root }}/bkc/kafl/fuzz.sh"
     dest: "{{ install_root }}/fuzz.sh"
     state: link

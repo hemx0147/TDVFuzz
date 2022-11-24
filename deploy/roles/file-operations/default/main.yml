@@ -1,1 +1,0 @@
-    image_root: "{{ install_root }}/fw-images"
