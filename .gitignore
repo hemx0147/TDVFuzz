@@ -1,20 +1,25 @@
 # directories
 /deploy/venv/
-/kafl/
-/targets/
 /code-locations/**/.cache
 /code-locations/*.db
 /code-locations/*-analysis.csv
 /saved-workdirs/
 __pycache__/
-/smatch/
 smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
 /workdir
 /fw-images
 
 # tools
-tools/*
+/kafl/
+/smatch/
+/peinfo/
+codeql-home/
+
+# targets
+linux-guest
+kafl.tdvf
+tdvf
 
 # files
 env.sh
