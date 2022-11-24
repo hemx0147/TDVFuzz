@@ -2,5 +2,5 @@ edk2_url: https://github.com/tianocore/edk2.git
 edk2_basename: "tdvf"
 edk2_version: "edk2-stable202208"
 edk2_branch_name: "stable202208"
-edk2_root: "{{ target_root }}/{{ edk2_basename }}"
+edk2_root: "{{ install_root }}/{{ edk2_basename }}"
 edk2_image: "TDVF_edk2.fd"
