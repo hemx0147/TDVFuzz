@@ -20,3 +20,8 @@
   command: git submodule update --init --recursive
   args:
     chdir: "{{ edk2_root }}"
+
+- name: Import build tasks
+  import_tasks: build.yml
+  tags:
+    - build
