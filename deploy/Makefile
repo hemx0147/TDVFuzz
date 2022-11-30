@@ -4,7 +4,7 @@
 # Makefile recipies for managing kAFL workspace
 
 # declare all targets in this variable
-ALL_TARGETS:=deploy clean update build
+ALL_TARGETS:=deploy clean update build tdvf
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 LOCALHOST_INVENTORY:=$(shell grep 'localhost' $(ROOT_DIR)/inventory > /dev/null 2>&1; echo $$?)
 ANSIBLE_COMMAND:=venv/bin/ansible-playbook -i $(ROOT_DIR)/inventory $(ROOT_DIR)/site.yml
@@ -57,3 +57,7 @@ update: venv
 # rebuild all components
 build: venv
 	$(ANSIBLE_COMMAND) -K --tags build $(EXTRA_ARGS)
+
+# rebuild tianocore TDVF only
+tdvf: venv
+	$(ANSIBLE_COMMAND) -K --tags build_tdvf $(EXTRA_ARGS)

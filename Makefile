@@ -4,7 +4,7 @@
 # Makefile recipies for managing kAFL workspace
 
 # declare all targets in this variable
-ALL_TARGETS:=deploy clean env update build prepare
+ALL_TARGETS:=deploy clean env update build prepare tdvf
 # declare all target as PHONY
 .PHONY: $(ALL_TARGETS)
 
@@ -75,4 +75,8 @@ update:
 
 # rebuild all components
 build:
+	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)
+
+# rebuild tianocore TDVF only
+tdvf:
 	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)
