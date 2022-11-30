@@ -14,7 +14,7 @@
 
 - name: Copy TDVF image
   ansible.builtin.copy:
-    src: "{{ edk2_root }}/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd"
+    src: "{{ edk2_root }}/Build/IntelTdx/DEBUG_GCC5/FV/OVMF.fd"
     dest: "{{ image_root }}/{{ edk2_image }}"
 
 - name: Create TDVF symlink
