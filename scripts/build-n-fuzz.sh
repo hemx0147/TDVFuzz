@@ -37,7 +37,7 @@ VERBOSE=0
 
 EDK_DIR=$(realpath "$TDVF_ROOT")
 TDVF_DSC="$EDK_DIR/OvmfPkg/IntelTdx/IntelTdxX64.dsc"
-BUILD_DIR="$EDK_DIR/Build/IntelTdxX64/DEBUG_GCC5/FV"
+BUILD_DIR="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV"
 TDVF_BIN="$BUILD_DIR/OVMF.fd"
 SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
 TDVF_IMG_NAME="TDVF_edk.fd"
@@ -125,7 +125,7 @@ function build_and_link_tdvf()
 
     # rebuild TDVF
     pushd $EDK_DIR > /dev/null
-    build -n $(nproc) -p OvmfPkg/OvmfPkgX64.dsc -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
+    build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     [[ -f $SEC_MAP ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     popd > /dev/null
