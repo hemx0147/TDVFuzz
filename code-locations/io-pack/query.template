@@ -4,7 +4,6 @@
  * @kind problem
  * @problem.severity warning
  * @tags <q-tag>
- *       <q-action>
  */
 
 import cpp
@@ -13,10 +12,10 @@ from FunctionCall call, Function target, string target_name, Function parent_fn
 where
 	call.getTarget() = target and 
 	target.getName() = target_name and (
-		target_name = "<q-fname-1>" or
-		target_name = "<q-fname-2>" or
-		target_name = "<q-fname-3>" or
-		target_name = "<q-fname-4>"
+		target_name.regexpMatch(".*<q-name>.*Read.*") or
+		target_name.regexpMatch(".*Read.*<q-name>.*") or
+		target_name.regexpMatch(".*<q-name>.*Write.*") or
+		target_name.regexpMatch(".*Write.*<q-name>.*")
 	) and
 	call.getEnclosingFunction() = parent_fn
-select parent_fn, parent_fn.getName()
+select parent_fn, target_name
