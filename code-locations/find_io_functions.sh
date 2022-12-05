@@ -181,11 +181,11 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 [[ -f "$FIND_FN_SCRIPT" ]] || fatal "find_functions script \"$FIND_FN_SCRIPT\" not found"
 
 # find functions
-find_mmio
-find_pio
+# find_mmio
+# find_pio
 find_virtio_pci
-find_virtio_mmio
-find_cr
-find_msr
+# find_virtio_mmio
+# find_cr
+# find_msr
 
 exit 0

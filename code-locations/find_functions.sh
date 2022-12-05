@@ -9,7 +9,6 @@
 # Parameters:
 #   PATTERN      The grep search pattern for a function (supports regex)
 #   SEARCHDIR    The directory where the search should be conducted
-#                (default: TDVF_ROOT)
 #   -i           Case-insensitive search
 ##
 # The output of this script can be used as input for the populate_queries.py
