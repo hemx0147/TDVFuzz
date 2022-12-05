@@ -1,10 +1,9 @@
 /**
- * @id mmio-read
- * @name MMIO Read
+ * @id msr
+ * @name Msr
  * @kind problem
  * @problem.severity warning
- * @tags MMIO
- *       read
+ * @tags Msr
  */
 
 import cpp
@@ -13,10 +12,10 @@ from FunctionCall call, Function target, string target_name, Function parent_fn
 where
 	call.getTarget() = target and 
 	target.getName() = target_name and (
-		target_name = "MmioRead8" or
-		target_name = "MmioRead16" or
-		target_name = "MmioRead32" or
-		target_name = "MmioRead64"
+		target_name.regexpMatch(".*Msr.*Read.*") or
+		target_name.regexpMatch(".*Read.*Msr.*") or
+		target_name.regexpMatch(".*Msr.*Write.*") or
+		target_name.regexpMatch(".*Write.*Msr.*")
 	) and
 	call.getEnclosingFunction() = parent_fn
-select parent_fn, parent_fn.getName()
+select parent_fn, target_name

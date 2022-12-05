@@ -1,10 +1,9 @@
 /**
- * @id msr-read
- * @name MSR Read
+ * @id pio
+ * @name Pio
  * @kind problem
  * @problem.severity warning
- * @tags MSR
- *       read
+ * @tags Pio
  */
 
 import cpp
@@ -13,10 +12,10 @@ from FunctionCall call, Function target, string target_name, Function parent_fn
 where
 	call.getTarget() = target and 
 	target.getName() = target_name and (
-		target_name = "AsmReadMsr8" or
-		target_name = "AsmReadMsr16" or
-		target_name = "AsmReadMsr32" or
-		target_name = "AsmReadMsr64"
+		target_name.regexpMatch(".*Pio.*Read.*") or
+		target_name.regexpMatch(".*Read.*Pio.*") or
+		target_name.regexpMatch(".*Pio.*Write.*") or
+		target_name.regexpMatch(".*Write.*Pio.*")
 	) and
 	call.getEnclosingFunction() = parent_fn
-select parent_fn, parent_fn.getName()
+select parent_fn, target_name
