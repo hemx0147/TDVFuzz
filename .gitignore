@@ -2,7 +2,7 @@
 /deploy/venv/
 /code-locations/**/.cache
 /code-locations/*.db
-/code-locations/*-analysis.csv
+/code-locations/results
 /saved-workdirs/
 __pycache__/
 smatcher.egg-info/
