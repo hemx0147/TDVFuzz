@@ -1,4 +1,4 @@
-edk2_url: https://github.com/tianocore/edk2.git
+edk2_url: https://github.com/hemx0147/edk2.git
 edk2_basename: "tdvf"
 edk2_version: "edk2-stable202211"
 edk2_branch_name: "stable202211"
