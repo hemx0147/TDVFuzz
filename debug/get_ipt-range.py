@@ -36,6 +36,7 @@
 
 import re
 import glob
+import argparse
 from enum import Enum
 from elftools.elf.elffile import ELFFile
 
@@ -130,15 +131,42 @@ def pretty_print_module_dict(module_dict: dict) -> None:
 
 
 if __name__ == "__main__":
-    # TODO: add argument parsing
+    parser = argparse.ArgumentParser(
+        description='Obtain IntelPT code ranges for TDVF modules loaded in a qemu session. ',
+        epilog='Information about which modules were loaded needs to be provided by a qemu debug log file. The .text section information will be extracted from TDVF .debug build files. This script requires the python pyelftools package.'
+    )
 
-    # TODO: replace fixed file name by command line arg
-    file_name = "debug-1.log"
-    module_dict = build_module_dict(file_name)
+    parser.add_argument(
+        'logfile',
+        metavar='LOGFILE',
+        type=str,
+        help='Path to a file containing debug prints of a qemu TDVF session'
+    )
+
+    parser.add_argument(
+        'debugdir',
+        metavar='DEBUGDIR',
+        type=str,
+        help='Path to a directory containing TDVF module .debug files (e.g. tdvf/Build/IntelTdx/DEBUG_GCC5/X64)'
+    )
+
+    parser.add_argument(
+        'module',
+        metavar='MODULE',
+        type=str,
+        nargs='?',
+        help='Name of the TDVF module whose code range should be displayed. If this option is omitted, the code ranges for all loaded modlues will be displayed.'
+    )
+
+    args = parser.parse_args()
+    log_file = args.logfile
+    debug_path = args.debugdir
+    search_module = args.module     # value is None if no argument given
+
+    # parse debug log to get list of modules and their base address
+    module_dict = build_module_dict(log_file)
 
     # find module debug files
-    # TODO: replace fixed path by command line arg / default path
-    debug_path = "/home/ubuntu/tdvfuzz/tdvf/Build/IntelTdx/DEBUG_GCC5/X64"
     module_paths = find_debug_file_paths(debug_path)
 
     # assign debug file paths to their modules
