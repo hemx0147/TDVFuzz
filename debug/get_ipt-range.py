@@ -1,39 +1,5 @@
 #!/bin/env python
 
-# Obtain IntelPT code ranges for TDVF modules
-
-# approach:
-# 0. parse arguments
-#   -h / --help   -> show help text
-#   <module_name> -> get ipt range for this specific module (no output if module does not exist)
-#   -l / --list   -> get ipt ranges for all modules & show in tabular overview (for each module show name, img base, text start, text end, text size)
-#
-# 1. get loaded module names & img base addresses
-#   input = qemu debug log
-#   file readlines, grep "Loading * at address..." -> dict[module_name: base-address]
-#
-# 2. get img base address for SecMain (static, not in qemu debug log)
-#   input = SecMain FV map file
-#   file readlines, grep "text-baseaddress=..." -> add to module-base dict
-#
-# 3. get names & paths of all module debug files
-#   input = tdvf search_dir search_dir
-#   glob(tdvf_root/*.debug), split results
-#   Q: duplicate modules? GUID comparison necessary? recursive search?
-#
-# 4. parse debug files (i.e. elf files) & extract .text offset & size
-#   input = module debug file
-#   pyelftools get section .text
-#
-# 5. compute actual text start & end
-#   input = module base addr, module text start & size
-#   text-start = module-offset + text-offset
-#   text-end = text-start + text-size
-#
-# 6. output desired info
-#   - script input = single module: text_start-text_end   <- can be copy-pasted into fuzzer command line
-#   - script input = --list: tabular output
-
 import re
 import glob
 import argparse
@@ -43,6 +9,7 @@ from elftools.elf.elffile import ELFFile
 # memory addresses have typical hex format (length 10 to 12)
 ADDRESS_RE = re.compile(r'0x[0-9a-fA-F]{8,16}')
 
+# some syntactic sugar for working with module dict
 class MD(Enum):
     mbase = 'img_base'
     tstart = 'text_start'
@@ -79,10 +46,13 @@ def get_module_address_from_line(module_line: str) -> str:
     return module_address
 
 def build_module_dict(file_name: str, module_name=None) -> dict:
+    '''
+    create a dict matching module name to base-, text-start- & text-end-addresses as well as text size and path to the module debug file.
+    module_dict: {name: {base, t_start, t_end, t_size, debug_path}}
+    ''' 
     with open(file_name, 'r') as f:
         lines = list(line.strip() for line in f.readlines())
     
-    # dict matching module name to base-, text-start- & text-end-address: {name: {base, t_start, t_end, t_size, debug_path}}
     module_dict = {}
 
     # get all "loading driver at ..." lines
@@ -91,10 +61,9 @@ def build_module_dict(file_name: str, module_name=None) -> dict:
     for line in driver_lines:
         module_name = get_module_name_from_line(line)
         module_address = get_module_address_from_line(line)
-        # key: module name, value: [img_base, text_start, text_end, text_size, debug_path]
         module_dict[module_name] = {MD.mbase: module_address, MD.tstart: "", MD.tend: "", MD.tsize: "", MD.dpath:""}
 
-    # DXE Core module line is special - it does not follow the line-pattern for general drivers
+    # DXE Core module line is special - it does not follow the general line-pattern for drivers
     dxe_core_line_re = re.compile(r'Loading DXE CORE at 0x')
     dxe_core_line = next(filter(lambda line: re.match(dxe_core_line_re, line), lines))
     dxe_core_name = "DxeCore"
@@ -127,11 +96,10 @@ def get_secmain_base(map_file: str) -> str:
     return base_addr
 
 def pretty_print_module_dict(module_dict: dict) -> None:
+    '''print all found modules and the obtained module info in a table'''
     if not module_dict:
         return
     
-    # fix column widths of printed table
-    # print(f'{"Module Name":<32} {"Image Base":<16} {".text Start":<16} {".text End":<16} {"Size":<6} {"Path to Debug File"}')
     print(f'{"Module Name":<32} {"Image Base":<16} {".text Start":<16} {".text End":<16} {"Size":<6}')
     print('-' * 90)
     for module, modinfo in module_dict.items():
@@ -139,8 +107,6 @@ def pretty_print_module_dict(module_dict: dict) -> None:
         tstart = str_to_hexaddress(modinfo[MD.tstart], False)
         tend = str_to_hexaddress(modinfo[MD.tend], False)
         tsize = modinfo[MD.tsize][2:]
-        # dpath = modinfo[MD.dpath].split('tdvf/')[1]
-        # print(f'{module:<32} {ibase:<16} {tstart:<16} {tend:<16} {tsize :0<6} {dpath}')
         print(f'{module:<32} {ibase:<16} {tstart:<16} {tend:<16} {tsize:0>6}')
 
 
@@ -174,6 +140,8 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    # variables set by command line arguments
     log_file = args.logfile
     build_dir = args.builddir
     search_module = args.module     # value is None if no argument given
@@ -189,29 +157,30 @@ if __name__ == "__main__":
     # find module debug files
     module_paths = find_debug_file_paths(build_dir)
 
-    # assign debug file paths to their modules
+    # assign missing info to modules
     for module, values in module_dict.items():
         if search_module:
             # skip all other modules if code range is wanted only for a specific module
             if module != search_module:
                 continue
 
+        # add module debug files paths
         module_path = next(filter(lambda path: module in path, module_paths))
         assert module_path, "invalid path to module debug file"
         values[MD.dpath] = module_path
-        # print(f"{module}: {module_dict[module]}")
     
-        # grep text base & size
+        # add module .text start, end & size
         with open(module_path, 'rb') as f:
             module_elf = ELFFile(f)
             for section in module_elf.iter_sections():
-                if section.name.startswith('.text'):
-                    tsize_num = section.header['sh_size']
-                    tstart_num = int(values[MD.mbase], 16) + section.header['sh_addr']
-                    tend_num = tstart_num + tsize_num
-                    values[MD.tstart] = hex(tstart_num)
-                    values[MD.tend] = hex(tend_num)
-                    values[MD.tsize] = hex(tsize_num)
+                if not section.name.startswith('.text'):
+                    continue
+                tsize_num = section.header['sh_size']
+                tstart_num = int(values[MD.mbase], 16) + section.header['sh_addr']
+                tend_num = tstart_num + tsize_num
+                values[MD.tstart] = hex(tstart_num)
+                values[MD.tend] = hex(tend_num)
+                values[MD.tsize] = hex(tsize_num)
         
     
     # sort module dict by key
@@ -219,7 +188,7 @@ if __name__ == "__main__":
 
     # print module information
     if search_module:
-        # for a single module, only return text "start-end" so it can be further processed by other programs
+        # for a single module, only return .text "start-end" so it can be further processed by other programs
         module_info = module_dict[search_module]
         print(f'{module_info[MD.tstart]}-{module_info[MD.tend]}')
     else:
