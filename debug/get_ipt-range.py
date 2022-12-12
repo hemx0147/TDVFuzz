@@ -41,7 +41,7 @@ from enum import Enum
 from elftools.elf.elffile import ELFFile
 
 # memory addresses have typical hex format (length 10 to 12)
-ADDRESS_RE = re.compile(r'0x[0-9a-fA-F]{10,12}')
+ADDRESS_RE = re.compile(r'0x[0-9a-fA-F]{8,16}')
 
 class MD(Enum):
     mbase = 'img_base'
@@ -85,8 +85,6 @@ def build_module_dict(file_name: str, module_name=None) -> dict:
     # dict matching module name to base-, text-start- & text-end-address: {name: {base, t_start, t_end, t_size, debug_path}}
     module_dict = {}
 
-    # TODO: add SecMain module
-
     # get all "loading driver at ..." lines
     module_line_re = re.compile(r'Loading driver at 0x')
     driver_lines = list(filter(lambda line: re.match(module_line_re, line), lines))
@@ -106,10 +104,27 @@ def build_module_dict(file_name: str, module_name=None) -> dict:
 
 def find_debug_file_paths(search_dir: str) -> list:
     '''find all module .debug files in directory search_dir and return their paths'''
-    f_str = search_dir + "/*.debug"
-    path_list = glob.glob(f_str, recursive=False)
+    debug_dir = search_dir + "/IntelTdx/DEBUG_GCC5/X64"
+    file_str = debug_dir + "/*.debug"
+    path_list = glob.glob(file_str, recursive=False)
     assert path_list, "list of module debug files is empty"
     return path_list
+
+def find_secmap_file_path(search_dir: str) -> str:
+    '''find the SecMain module FV map file and return its path'''
+    f_str = search_dir + "/**/SECFV.Fv.map"
+    path = glob.glob(f_str, recursive=True)[0]
+    assert path, f"invalid path to SEC FV map file '{path}'"
+    return path
+
+def get_secmain_base(map_file: str) -> str:
+    '''obtain the base address of the SecMain module from a FV map file'''
+    with open(map_file, 'r') as f:
+        lines = list(line.strip() for line in f.readlines())
+    ba_re = re.compile(r'BaseAddress=' + ADDRESS_RE.pattern)
+    base_addr_line = next(filter(lambda line: re.findall(ba_re, line), lines))
+    base_addr = re.findall(ba_re, base_addr_line)[0].split('=')[1]
+    return base_addr
 
 def pretty_print_module_dict(module_dict: dict) -> None:
     if not module_dict:
@@ -144,10 +159,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        'debugdir',
-        metavar='DEBUGDIR',
+        'builddir',
+        metavar='BUILDDIR',
         type=str,
-        help='Path to a directory containing TDVF module .debug files (e.g. tdvf/Build/IntelTdx/DEBUG_GCC5/X64)'
+        help='Path to TDVF Build directory containing TDVF module .debug and FV map files (e.g. tdvf/Build)'
     )
 
     parser.add_argument(
@@ -160,14 +175,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     log_file = args.logfile
-    debug_path = args.debugdir
+    build_dir = args.builddir
     search_module = args.module     # value is None if no argument given
 
     # parse debug log to get list of modules and their base address
     module_dict = build_module_dict(log_file)
 
+    # add entry for SecMain module (base address is in FV map file instead of qemu debug log)
+    secmap = find_secmap_file_path(build_dir)
+    sec_base_address = get_secmain_base(secmap)
+    module_dict['SecMain'] = {MD.mbase: sec_base_address, MD.tstart: "", MD.tend: "", MD.tsize: "", MD.dpath:""}
+
     # find module debug files
-    module_paths = find_debug_file_paths(debug_path)
+    module_paths = find_debug_file_paths(build_dir)
 
     # assign debug file paths to their modules
     for module, values in module_dict.items():
