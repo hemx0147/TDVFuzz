@@ -154,6 +154,9 @@ if __name__ == "__main__":
     sec_base_address = get_secmain_base(secmap)
     module_dict['SecMain'] = {MD.mbase: sec_base_address, MD.tstart: "", MD.tend: "", MD.tsize: "", MD.dpath:""}
 
+    if search_module and search_module not in module_dict.keys():
+        exit(-1)
+
     # find module debug files
     module_paths = find_debug_file_paths(build_dir)
 
