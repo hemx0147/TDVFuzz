@@ -171,6 +171,11 @@ if __name__ == "__main__":
 
     # assign debug file paths to their modules
     for module, values in module_dict.items():
+        if search_module:
+            # skip all other modules if code range is wanted only for a specific module
+            if module != search_module:
+                continue
+
         module_path = next(filter(lambda path: module in path, module_paths))
         assert module_path, "invalid path to module debug file"
         values[MD.dpath] = module_path
@@ -192,5 +197,10 @@ if __name__ == "__main__":
     # sort module dict by key
     module_dict = {key: val for key, val in sorted(module_dict.items(), key = lambda k: k[0])}
 
-    # print stuff
-    pretty_print_module_dict(module_dict)
+    # print module information
+    if search_module:
+        # for a single module, only return text "start-end" so it can be further processed by other programs
+        module_info = module_dict[search_module]
+        print(f'{module_info[MD.tstart]}-{module_info[MD.tend]}')
+    else:
+        pretty_print_module_dict(module_dict)
