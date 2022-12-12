@@ -125,7 +125,7 @@ def pretty_print_module_dict(module_dict: dict) -> None:
         tsize = modinfo[MD.tsize][2:]
         # dpath = modinfo[MD.dpath].split('tdvf/')[1]
         # print(f'{module:<32} {ibase:<16} {tstart:<16} {tend:<16} {tsize :0<6} {dpath}')
-        print(f'{module:<32} {ibase:<16} {tstart:<16} {tend:<16} {tsize :0<6}')
+        print(f'{module:<32} {ibase:<16} {tstart:<16} {tend:<16} {tsize:0>6}')
 
 
 
