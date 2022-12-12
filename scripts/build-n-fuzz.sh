@@ -40,6 +40,7 @@ TDVF_DSC="$EDK_DIR/OvmfPkg/IntelTdx/IntelTdxX64.dsc"
 BUILD_DIR="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV"
 TDVF_BIN="$BUILD_DIR/OVMF.fd"
 SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
+SEC_DBG="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV/SECFV.Fv.map"
 TDVF_IMG_NAME="TDVF_edk.fd"
 TDVF_LINK_NAME="TDVF.fd"
 LOG_DIR="logs"
@@ -144,19 +145,13 @@ function build_and_link_tdvf()
 # get Intel PT code range for SecMain module
 function get_ipt_range()
 {
-    verbose_print "Obtaining Intel PT code range..."
-    if [[ -f "$SEC_RANGE_SCRIPT" ]]
-    then
-        # call SEC range script since it exists in CWD
-        IPT_RANGE=$($SEC_RANGE_SCRIPT)
-        ipt_start=$(echo $IPT_RANGE | sed 's/-.*//')
-        ipt_end=$(echo $IPT_RANGE | sed 's/.*-//')
-    else
-        # use default values
-        ipt_start=$(grep SecMain $SEC_MAP | sed 's/.*BaseAddress=\(0x[0-9a-fA-F]\{10\}\).*/\1/')
-        ipt_end=0x00ffffffff
-        IPT_RANGE=$ipt_start-$ipt_end
-    fi
+    verbose_print "Obtaining Intel PT code range for SecMain module..."
+
+    # get SecMain .text start & end from SecMain map & debug file
+    txt_size="0x`readelf -SW $SEC_DBG | grep -w '.text ' | awk '{print $7}'`"
+    ipt_start="`grep -oE '.textbaseaddress=0x[0-9a-fA-F]{1,16}' $SEC_MAP | awk -F '=' '{print $2}'`"
+    ipt_end="$(($ipt_start + $txt_size))"
+    IPT_RANGE=$ipt_start-$ipt_end
 
     # ensure that found IPT addresses match 64-bit hexadecimal address format
     re_addr="^0x[0-9a-fA-F]{1,16}$"
