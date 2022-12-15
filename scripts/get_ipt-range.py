@@ -73,8 +73,7 @@ def build_module_dict(file_name: str, module_name=None) -> dict:
 
 def find_debug_file_paths(search_dir: str) -> list:
     '''find all module .debug files in directory search_dir and return their paths'''
-    debug_dir = search_dir + "/IntelTdx/DEBUG_GCC5/X64"
-    file_str = debug_dir + "/*.debug"
+    file_str = search_dir + "/*.debug"
     path_list = glob.glob(file_str, recursive=False)
     assert path_list, "list of module debug files is empty"
     return path_list
@@ -125,10 +124,17 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        'builddir',
-        metavar='BUILDDIR',
+        'debugdir',
+        metavar='DEBUGDIR',
         type=str,
-        help='Path to TDVF Build directory containing TDVF module .debug and FV map files (e.g. tdvf/Build)'
+        help='Path to directory containing TDVF module .debug files (e.g. tdvf/Build/IntelTdx/DEBUG_GCC5/X64)'
+    )
+
+    parser.add_argument(
+        'secmap',
+        metavar='SECMAP',
+        type=str,
+        help='Path to the SecMain FV map file (e.g. tdvf/Build/IntelTdx/DEBUG_GCC5/FV/SECFV.Fv.map)'
     )
 
     parser.add_argument(
@@ -143,14 +149,14 @@ if __name__ == "__main__":
 
     # variables set by command line arguments
     log_file = args.logfile
-    build_dir = args.builddir
+    debug_dir = args.debugdir
+    secmap = args.secmap
     search_module = args.module     # value is None if no argument given
 
     # parse debug log to get list of modules and their base address
     module_dict = build_module_dict(log_file)
 
     # add entry for SecMain module (base address is in FV map file instead of qemu debug log)
-    secmap = find_secmap_file_path(build_dir)
     sec_base_address = get_secmain_base(secmap)
     module_dict['SecMain'] = {MD.mbase: sec_base_address, MD.tstart: "", MD.tend: "", MD.tsize: "", MD.dpath:""}
 
@@ -158,7 +164,7 @@ if __name__ == "__main__":
         exit(-1)
 
     # find module debug files
-    module_paths = find_debug_file_paths(build_dir)
+    module_paths = find_debug_file_paths(debug_dir)
 
     # assign missing info to modules
     for module, values in module_dict.items():
