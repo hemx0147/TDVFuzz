@@ -40,7 +40,7 @@ TDVF_DSC="$EDK_DIR/OvmfPkg/IntelTdx/IntelTdxX64.dsc"
 BUILD_DIR="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV"
 TDVF_BIN="$BUILD_DIR/OVMF.fd"
 SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
-SEC_DBG="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV/SECFV.Fv.map"
+SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
 TDVF_IMG_NAME="TDVF_edk.fd"
 TDVF_LINK_NAME="TDVF.fd"
 LOG_DIR="logs"
@@ -145,18 +145,18 @@ function build_and_link_tdvf()
 # get Intel PT code range for SecMain module
 function get_ipt_range()
 {
-    verbose_print "Obtaining Intel PT code range for SecMain module..."
+    verbose_print "Obtaining IntelPT code range for SecMain module..."
 
     # get SecMain .text start & end from SecMain map & debug file
-    txt_size="0x`readelf -SW $SEC_DBG | grep -w '.text ' | awk '{print $7}'`"
+    txt_size="0x$(readelf -SW $SEC_DBG | grep -w '.text ' | awk '{print $7}')"
     ipt_start="`grep -oE '.textbaseaddress=0x[0-9a-fA-F]{1,16}' $SEC_MAP | awk -F '=' '{print $2}'`"
-    ipt_end="$(($ipt_start + $txt_size))"
+    ipt_end="$(printf 0x%0.10x $(($ipt_start + $txt_size)))"
     IPT_RANGE=$ipt_start-$ipt_end
 
-    # ensure that found IPT addresses match 64-bit hexadecimal address format
+    # ensure that found IntelPT addresses match 64-bit hexadecimal address format
     re_addr="^0x[0-9a-fA-F]{1,16}$"
-    [[ $ipt_start =~ $re_addr ]] || fatal "Bad format of IPT range start $ipt_start. Check $SEC_MAP for potential issues."
-    [[ $ipt_end =~ $re_addr ]] || fatal "Bad format of IPT range end $ipt_start. Check $SEC_MAP for potential issues."
+    [[ $ipt_start =~ $re_addr ]] || fatal "Bad format of IntelPT range start $ipt_start. Check $SEC_MAP for potential issues."
+    [[ $ipt_end =~ $re_addr ]] || fatal "Bad format of IntelPT range end $ipt_start. Check $SEC_MAP for potential issues."
 
     verbose_print "Using Intel PT code range $IPT_RANGE"
 }
@@ -195,6 +195,7 @@ do
             BUILD_DIR="$EDK_DIR/Build/OvmfX64/DEBUG_GCC5/FV"
             TDVF_BIN="$BUILD_DIR/OVMF.fd"
             SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
+            SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
         	shift   # past argument
             shift   # past value
             ;;
