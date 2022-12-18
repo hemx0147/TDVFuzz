@@ -4,11 +4,8 @@ import re
 import glob
 import argparse
 from typing import Tuple, Dict
-
-# add tdvf module class file to search path for module imports
-import sys
-sys.path.append('../kafl/fuzzer/scripts')
-from tdvf_module import *
+# kafl/fuzzer dir is already module search path
+from scripts.tdvf_module import *
 
 
 # memory addresses have typical hex format (length 10 to 12)
@@ -20,7 +17,7 @@ def get_module_name_from_line(module_line: str) -> str:
     # "\w" = any word characters (characters from a to Z, digits from 0-9, and the underscore _ character)
     module_file_re = re.compile(r'\w+\.efi$')
     module_file = module_file_re.search(module_line).group()
-    name = module_file.strip('.efi')
+    name = re.sub(r'\.efi$', "", module_file)
     assert name is not None, "no module name found"
     return name
 
@@ -28,7 +25,7 @@ def get_module_address_from_line(module_line: str) -> str:
     '''get the module image base address from a qemu debug log line'''
     address = ADDRESS_RE.search(module_line).group()
     assert address is not None, "no module address found"
-    return address
+    return int(address, 16)
 
 def get_driver_modules_and_addresses(log_file:str) -> Dict[str, str]:
     with open(log_file, 'r') as f:
@@ -59,17 +56,27 @@ def get_secmain_name_and_address(map_file: str) -> Tuple[str, str]:
     ba_re = re.compile(r'BaseAddress=' + ADDRESS_RE.pattern)
     base_addr_line = next(filter(lambda line: re.findall(ba_re, line), lines))
     base_addr = re.findall(ba_re, base_addr_line)[0].split('=')[1]
-    return 'SecMain', base_addr
+    return 'SecMain', int(base_addr, 16)
 
 def find_debug_file_paths(build_dir: str) -> Dict[str, str]:
     '''find all module .debug files in directory search_dir and return a dict of modules and their paths'''
-    search_dir = glob.glob(build_dir + '**/DEBUG_GCC5/X64', recursive=True)
-    path_list = glob.glob(search_dir + "/*.debug", recursive=False)
+    x64_dir = build_dir + '/**/DEBUG_GCC5/X64'
+    search_dir = glob.glob(x64_dir, recursive=True)[0]
+    path_list = glob.glob(search_dir + '/*.debug', recursive=False)
     assert path_list, "list of module debug files is empty"
 
     module_paths = {}
     for path in path_list:
-        name = path.split('/')[-1].strip('.debug')
+        base_name = path.split('/')[-1]
+        name = re.sub(r"\.debug$", "", base_name)
+        
+        # There are two CpuDxe debug files (with different GUID added to filename). For now, we just remove the GUID & don't care about which CpuDxe debug is used.
+        #TODO: figure out which CpuDxe module is used or load both
+        # remove potential guid-part from file name
+        # regex guid modified from https://uibakery.io/regex-library/guid-regex-python
+        guid_part_re = re.compile(r'_(?:[0-9a-fA-F]){8}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){12}')
+        name = re.sub(guid_part_re, "", name)
+
         module_paths[name] = path
     return module_paths
 
@@ -132,11 +139,9 @@ if __name__ == "__main__":
 
     # build TDVF module table
     module_table = TdvfModuleTable()
-    for module, address in module_dict.values():
-        m = TdvfModule(module)
-        m.img_base = address
-        m.d_path = module_paths[module]
-        m.fill_text_info
+    for name, address in module_dict.items():
+        m = TdvfModule(name, img_base=address, d_path=module_paths[name])
+        m.fill_text_info()
         module_table.add_module(m)
         
     # print module information
