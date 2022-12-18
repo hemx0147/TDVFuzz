@@ -25,7 +25,7 @@ def get_module_address_from_line(module_line: str) -> str:
     '''get the module image base address from a qemu debug log line'''
     address = ADDRESS_RE.search(module_line).group()
     assert address is not None, "no module address found"
-    return int(address, 16)
+    return Address(address)
 
 def get_driver_modules_and_addresses(log_file:str) -> Dict[str, str]:
     with open(log_file, 'r') as f:
@@ -46,7 +46,7 @@ def get_driver_modules_and_addresses(log_file:str) -> Dict[str, str]:
         else:
             # line does not contain loaded driver info
             continue
-        modules[name] = address
+        modules[name] = Address(address)
     return modules
 
 def get_secmain_name_and_address(map_file: str) -> Tuple[str, str]:
@@ -56,7 +56,7 @@ def get_secmain_name_and_address(map_file: str) -> Tuple[str, str]:
     ba_re = re.compile(r'BaseAddress=' + ADDRESS_RE.pattern)
     base_addr_line = next(filter(lambda line: re.findall(ba_re, line), lines))
     base_addr = re.findall(ba_re, base_addr_line)[0].split('=')[1]
-    return 'SecMain', int(base_addr, 16)
+    return 'SecMain', Address(base_addr)
 
 def find_debug_file_paths(build_dir: str) -> Dict[str, str]:
     '''find all module .debug files in directory search_dir and return a dict of modules and their paths'''
