@@ -79,7 +79,7 @@ def get_module_debug_file_paths(build_dir: str) -> Dict[str, str]:
         guid_part_re = re.compile(r'_(?:[0-9a-fA-F]){8}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){12}')
         name = re.sub(guid_part_re, "", name)
 
-        module_paths[name] = path
+        module_paths[name] = os.path.abspath(path)
     return module_paths
 
 def find_secmap_file_path(build_dir: str) -> str:
