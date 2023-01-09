@@ -4,7 +4,7 @@
 # Makefile recipies for managing kAFL workspace
 
 # declare all targets in this variable
-ALL_TARGETS:=deploy clean env update build prepare
+ALL_TARGETS:=deploy clean env update build prepare tdvf
 # declare all target as PHONY
 .PHONY: $(ALL_TARGETS)
 
@@ -30,9 +30,9 @@ deploy:
 	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)
 
 env: SHELL:=bash
-env: env.sh
+env: scripts/env.sh
 	@echo "Entering environment in sub-shell. Exit with 'Ctrl-d'."
-	@PROMPT_COMMAND='source env.sh; unset PROMPT_COMMAND' $(SHELL)
+	@PROMPT_COMMAND='source scripts/env.sh; unset PROMPT_COMMAND' $(SHELL)
 
 auditconf := bkc/kafl/linux_kernel_tdx_guest.config
 auditlogs := smatch_warns_annotated.txt
@@ -75,4 +75,8 @@ update:
 
 # rebuild all components
 build:
+	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)
+
+# rebuild tianocore TDVF only
+tdvf:
 	$(MAKE) -C deploy $@ -- $(EXTRA_ARGS)

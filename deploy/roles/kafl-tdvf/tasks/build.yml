@@ -1,21 +1,3 @@
-- name: Install TDVF build dependencies
-  ansible.builtin.package:
-    name:
-      - nasm
-      - iasl
-      - uuid-dev
-      - python
-    state: present
-  become: true
-
-- name: Clone TDVF repo
-  ansible.builtin.git:
-    repo: "{{ tdvf_url }}"
-    dest: "{{ tdvf_root }}"
-    version: "{{ tdvf_revision | default(omit) }}"
-    depth: "{{ git_clone_depth | default(omit) }}"
-    force: true
-
 - name: Build BaseTools
   community.general.system.make:
     chdir: "{{ tdvf_root }}/BaseTools"
@@ -29,3 +11,8 @@
     executable: /bin/bash
     chdir: "{{ tdvf_root }}"
   changed_when: false
+
+- name: Copy TDVF image
+  ansible.builtin.copy:
+    src: "{{ tdvf_root }}/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd"
+    dest: "{{ image_root }}/TDVF_hello.fd"

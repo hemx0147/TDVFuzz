@@ -1,16 +1,34 @@
-env.sh
+# directories
 /deploy/venv/
+/code-locations/**/.cache
+/code-locations/*.db
+/code-locations/results
+/saved-workdirs/
+__pycache__/
+smatcher.egg-info/
+bkc/coverage/fast_matcher/target/
+/kafl-workdir
+/fw-images
+
+# tools
+/kafl/
+/smatch/
+/peinfo/
+codeql-home/
+
+# targets
+linux-guest
+kafl.tdvf
+tdvf
+
+# files
+env.sh
 Pipfile
 Pipfile.lock
-/kafl/
-linux-guest/
-linux-host/
-/tdvf/
-/smatch/
-/packer/
 fuzz.sh
 TDVF.fd
 initrd.cpio.gz
+bzImage
 
 # IDE
 .vscode/

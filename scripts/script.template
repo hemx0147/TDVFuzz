@@ -1,0 +1,130 @@
+#!/bin/env bash
+
+##
+# Some script description
+# List dependencies, requirements as well as copyrights
+#
+# Usage: script-name [OPTION]
+#
+# Options:
+#   -h, --help    display this help text
+#   -f, --func    execute function func
+#   -n NUM        execute function func_with_arg with parameter NUM
+#   -v            print verbose output
+##
+# Some note for script execution.
+##
+
+
+####################################
+# Global Variables
+####################################
+VERBOSE=0
+
+####################################
+# Function Definitions
+####################################
+
+# print script usage information given above in comments
+function usage()
+{
+	# find usage line
+    usage_start=$(grep -n "^# Usage" "$0" | awk -F ":" '{print $1}')
+    # print only usage part
+    tail -n +"$usage_start" "$0" | sed -ne '/^#/!q;/^##/q;s/.\{1,2\}//;p'
+    exit
+}
+
+# print help text given above in comments
+function help()
+{
+	# find usage line
+    help_start="`grep -n "^##" "$0" | head -n 1 | awk -F ":" '{print $1}'`"
+    # print only usage part
+    tail -n +"$help_start" "$0" | sed -ne '/^#/!q;s/.\{1,2\}//;1d;p'
+    exit
+}
+
+# exit with errorcode 1 & print usage
+function fatal()
+{
+    [[ -n "$1" ]] && echo "Error: $1"; echo
+    usage >&2
+    exit 1
+}
+
+# only print if VERBOSE flag is set
+function verbose_print()
+{
+    [[ $VERBOSE -eq 1 ]] && echo $1
+}
+
+# description of func
+function func()
+{
+    echo "This is the func function."
+}
+
+# description of func with arc
+function func_with_arg()
+{
+    echo "This is the argument: $1"
+}
+
+
+####################################
+# Main()
+####################################
+
+# argument parsing
+# specify command line option letters here
+# note: getopts does not support long options (e.g. --help)
+# while getopts 'hfn:' option
+# do
+#     case "$option" in
+#         'h') usage; exit 0 ;;
+#         'f') func ;;
+#         'n') func_with_arg $OPTARG ;;
+#         '?') fatal ;;
+#     esac
+# done
+
+# alternative intput parsing
+# note: options can be given multiple times,
+#       i.e. "script -n 5 -n 10" executes func_with_args once with 5 and once with 10
+POSITIONAL_ARGS=()
+while [[ "$#" -gt 0 ]]
+do
+	case "$1" in
+        '-h'|'--help')
+            help
+            ;;
+        '-f'|'--func')
+            func
+            shift   # past argument
+            ;;
+        '-n')
+            [[ -z "$2" ]] && fatal "Missing parameter NUM"
+        	shift   # past argument
+            shift   # past value
+            ;;
+        '-v')
+            VERBOSE=1
+            shift   # past argument
+            ;;
+        -*|--*)
+        	fatal "Unknown option $1"
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1") # save positional arg
+            shift   # past argument
+            ;;
+    esac
+done
+set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
+
+
+# do something
+echo "Hello World"
+verbose_print "This text is shown only when verbose flag is set."
+exit 0

@@ -19,6 +19,7 @@ BIOS_IMAGE=$BKC_ROOT/TDVF.fd
 INITRD_IMAGE=$BKC_ROOT/initrd.cpio.gz
 DEFAULT_SHARE_DIR=$BKC_ROOT/sharedir
 DEFAULT_WORK_DIR=$KAFL_WORKDIR
+TDVF_BUILD_DIR=$TDVF_ROOT/Build
 #DISK_IMAGE=$BKC_ROOT/tdx_overlay1.qcow2
 
 # limited to 1G due to hardcoded TdHobList in TDVF!
@@ -137,6 +138,12 @@ function set_workdir()
 	test -f "$TARGET_BIN" || fatal "Could not find bzImage in $TARGET_ROOT or $TARGET_ROOT/target/"
 	test -f "$TARGET_ELF" || fatal "Could not find vmlinux in $TARGET_ROOT or $TARGET_ROOT/target/"
 	test -f "$TARGET_MAP" || fatal "Could not find System.map in $TARGET_ROOT or $TARGET_ROOT/target/"
+	
+	test -d "$TDVF_BUILD_DIR" || fatal "Invalid TDVF build directory \"$TDVF_BUILD_DIR\""
+	test -n "$(find $TDVF_BUILD_DIR -type f -name '*.debug')" || fatal "No .debug files found in TDVF Build directory"
+	test -n "$(find $TDVF_BUILD_DIR -type f -name '*.efi')" || fatal "No .efi files found in TDVF Build directory"
+	test -n "$(find $TDVF_BUILD_DIR -type f -name '*.map')" || fatal "No .map files found in TDVF Build directory"
+	test -n "$(find $TDVF_BUILD_DIR -type f -name '*.fd')" || fatal "No .fd files found in TDVF Build directory"
 }
 
 # regular fuzz run based on TARGET_ROOT and default WORK_DIR
@@ -157,6 +164,7 @@ function run()
 	date > $WORK_DIR/target/timestamp.log
 	cp $TARGET_BIN $TARGET_MAP $TARGET_ELF $WORK_DIR/target/
 	test -f $TARGET_CONF && cp $TARGET_CONF $WORK_DIR/target/config
+	cp -r $TDVF_BUILD_DIR $WORK_DIR/target/TDVF
 	echo "kAFL options: -m $MEMSIZE -ip0 $ip0_a-$ip0_b -ip1 $ip1_a-$ip1_b $KAFL_OPTS $*" > $WORK_DIR/target/kafl_args.txt
 
 	## collect some more detailed target-specific info to help reproduce
@@ -193,6 +201,7 @@ function debug()
 	echo -e "\033[33m"
 	echo "Resume from workdir: $WORK_DIR"
 	echo "Target kernel location:  $TARGET_BIN"
+	echo "TDVF location: $TDVF_BUILD_DIR"
 	echo -e "\033[00m"
 
 	kafl_debug.py \
@@ -241,6 +250,7 @@ function triage()
 	echo -e "\033[33m"
 	echo "Resume from workdir: $WORK_DIR"
 	echo "Target kernel location:  $TARGET_BIN"
+	echo "TDVF location: $TDVF_BUILD_DIR"
 	echo "Target payload: $TARGET_PAYLOAD"
 	echo -e "\033[00m"
 

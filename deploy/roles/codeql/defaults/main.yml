@@ -1,0 +1,10 @@
+codeql_root: "{{ install_root }}/code-locations/codeql-home"
+
+# codeql binary
+codeql_bin_url: https://github.com/github/codeql-cli-binaries/releases/download/v2.11.0/codeql-linux64.zip
+codeql_bin_root: "{{ codeql_root }}/codeql"
+codeql_bin_path: "{{ codeql_bin_root }}/codeql"
+
+# codeql repo
+codeql_repo_url: https://github.com/github/codeql.git
+codeql_repo_root: "{{ codeql_root }}/codeql-repo"

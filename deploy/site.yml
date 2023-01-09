@@ -15,19 +15,30 @@
     - role: bkc
       tags:
         - bkc
-    - role: tdvf
+    - role: file-operations
       tags:
-        - tdvf
+        - file-operations
+    - role: kafl-tdvf
+      tags:
+        - kafl-tdvf
+    - role: tianocore-tdvf
+      tags:
+        - tianocore-tdvf
     - role: guest
       tags:
         - guest
     - role: smatch
       tags:
         - smatch
-
+    - role: peinfo
+      tags:
+        - peinfo
+    - role: codeql
+      tags:
+        - codeql
 
   post_tasks:
     - name: Install env file
       template:
         src: env.j2
-        dest: "{{ install_root }}/env.sh"
+        dest: "{{ install_root }}/scripts/env.sh"

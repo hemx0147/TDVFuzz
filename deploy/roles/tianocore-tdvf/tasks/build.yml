@@ -1,0 +1,25 @@
+- name: Build BaseTools
+  make:
+    chdir: "{{ edk2_root }}/BaseTools"
+    params:
+      --jobs: "{{ ansible_processor_nproc }}"
+
+- name: Build TDVF Configuration B
+  shell: >
+    source edksetup.sh --reconfig &&
+    build -n $(nproc) -p OvmfPkg/IntelTdx/IntelTdxX64.dsc -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
+  args:
+    executable: /bin/bash
+    chdir: "{{ edk2_root }}"
+
+- name: Copy TDVF image
+  ansible.builtin.copy:
+    src: "{{ edk2_root }}/Build/IntelTdx/DEBUG_GCC5/FV/OVMF.fd"
+    dest: "{{ image_root }}/{{ edk2_image }}"
+
+- name: Create TDVF symlink
+  ansible.builtin.file:
+    src: "{{ image_root }}/{{ edk2_image }}"
+    dest: "{{ install_root }}/TDVF.fd"
+    state: link
+    force: yes

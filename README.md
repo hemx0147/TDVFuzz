@@ -1,12 +1,12 @@
 <h1 align="center">
-  <br>Linux Security Hardening for Confidential Compute</br>
+  <br>TDVFuzz: Fuzzing Intel's Trust Domain Virtual Firmware</br>
 </h1>
 
-<p align="center">
+<!-- <p align="center">
   <a href="https://github.com/intel/ccc-linux-guest-hardening/actions/workflows/ci.yml">
     <img src="https://github.com/intel/ccc-linux-guest-hardening/actions/workflows/ci.yml/badge.svg" alt="CI">
   </a>
-</p>
+</p> -->
 
 This project contains tools, scripts, and _best-known-configuration_ (BKC) for
 Linux guest kernel hardening in the context of Confidential Cloud Computing threat

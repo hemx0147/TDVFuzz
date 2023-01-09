@@ -1,0 +1,29 @@
+- name: Check for previous EDK2 version
+  ansible.builtin.stat:
+    path: "{{ edk2_root }}"
+  register: stat_edk2
+
+- name: Clone EDK2 repo
+  git:
+    repo: "{{ edk2_url }}"
+    dest: "{{ edk2_root }}"
+    version: "{{ edk2_version }}"
+    force: yes
+
+- name: Switch to stable branch
+  command: "git switch -c {{ edk2_branch_name }}"
+  args:
+    chdir: "{{ edk2_root }}"
+  when: not stat_edk2.stat.exists
+
+- name: Initialize submodules
+  command: git submodule update --init --recursive
+  args:
+    chdir: "{{ edk2_root }}"
+
+- name: Import build tasks
+  import_tasks: build.yml
+  tags:
+    - build
+    - build_tdvf
+    - never

@@ -17,3 +17,8 @@
   community.general.system.make:
     chdir: "{{ guest_root }}"
     jobs: "{{ ansible_processor_nproc }}"
+
+- name: Copy TDX guest kernel image
+  ansible.builtin.copy:
+    src: "{{ guest_root }}/arch/x86_64/boot/bzImage"
+    dest: "{{ install_root}}/bzImage"
