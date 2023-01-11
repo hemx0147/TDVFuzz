@@ -1,8 +1,7 @@
 - name: Build BaseTools
-  make:
+  community.general.system.make:
     chdir: "{{ edk2_root }}/BaseTools"
-    params:
-      --jobs: "{{ ansible_processor_nproc }}"
+    jobs: "{{ ansible_processor_nproc }}"
 
 - name: Build TDVF Configuration B
   shell: >
