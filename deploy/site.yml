@@ -15,6 +15,9 @@
     - role: bkc
       tags:
         - bkc
+    - role: nasm
+      tags:
+        - nasm
     - role: file-operations
       tags:
         - file-operations
