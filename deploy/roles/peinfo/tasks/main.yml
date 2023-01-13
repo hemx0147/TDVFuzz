@@ -8,5 +8,4 @@
 - name: Build peinfo
   make:
     chdir: "{{ peinfo_root }}"
-    params:
-      --jobs: "{{ ansible_processor_nproc }}"
+    jobs: "{{ ansible_processor_nproc }}"
