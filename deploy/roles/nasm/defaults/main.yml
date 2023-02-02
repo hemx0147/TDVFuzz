@@ -1,5 +1,4 @@
 nasm_revision: "2.15.05"
 nasm_name: "nasm-{{ nasm_revision }}"
 nasm_archive: "{{ nasm_name }}.tar.gz"
-nasm_url: https://www.nasm.us/pub/nasm/releasebuilds/{{ nasm_revision }}/{{ nasm_archive }}"
-nasm_root: "/tmp/nasm"
+nasm_url: "https://www.nasm.us/pub/nasm/releasebuilds/{{ nasm_revision }}/{{ nasm_archive }}"

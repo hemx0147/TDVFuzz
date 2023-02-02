@@ -1,66 +1,65 @@
-- name: Check for presence of nasm binary
-  ansible.builtin.stat:
-    path: "/usr/bin/nasm"
-  register: nasm_binary
-
-- name: Gather nasm version
-  ansible.builtin.shell: >
-    nasm --version
+- name: Check if nasm is already installed
+  ansible.builtin.shell: which nasm
   args:
     executable: /bin/bash
-  register: nasm_version_cmd
-  - set_fact:
-      nasm_version: "{{ nasm_version_cmd.stdout_lines.1.split(' ').2 }}"
-  when: nasm_binary.stat.exists
-      
+  register: nasm_path_cmd
+  ignore_errors: yes
+  check_mode: false
+
+- name: Gather nasm version
+  block:
+    - name: Get nasm version output
+      ansible.builtin.shell: nasm --version
+      args:
+        executable: /bin/bash
+      register: nasm_version_cmd
+    
+    - name: Set nasm version variable
+      ansible.builtin.set_fact:
+        nasm_version: "{{ nasm_version_cmd.stdout.split(' ').2 }}"
+  when: nasm_path_cmd.stdout != ""
+
 - name: Install {{ nasm_name }} if necessary
   block:
   - name: Create temporary directory
     ansible.builtin.tempfile:
       state: directory
     register: temp_nasm
-    check_mode: false
 
+  # unarchive can fetch the archive directly from web -> no explicit download & delete archive when done needed
   - name: Obtain nasm
-    block:
-      - name: Download nasm tarball
-        ansible.builtin.get_url:
-          url: "{{ nasm_url }}"
-          dest: "{{ temp_nasm.path }}/{{ nasm_archive }}"
-          mode: 0644
-      - name: Extract nasm
-        ansible.builtin.unarchive:
-          src: "{{ temp_nasm.path }}/{{ nasm_archive }}"
-          remote_src: true
-      - name: Remove nasm archive
-        ansible.builtin.file:
-        path: "{{ temp_nasm.path }}/{{ nasm_archive }}"
-        state: absent
+    ansible.builtin.unarchive:
+      src: "{{ nasm_url }}"
+      dest: "{{ temp_nasm.path }}"
+      remote_src: true
 
-  - name: Build nasm
+  - name: Build & install nasm
     block:
       - name: Configure
-        ansible.builtin.shell: >
-          ./configure
+        ansible.builtin.shell: ./configure
         args:
+          chdir: "{{ temp_nasm.path }}/{{ nasm_name }}"
           executable: /bin/bash
+
       - name: Make  
         community.general.system.make:
           chdir: "{{ temp_nasm.path }}/{{ nasm_name }}"
           jobs: "{{ ansible_processor_nproc }}"
+
       - name: Install
         community.general.system.make:
           chdir: "{{ temp_nasm.path }}/{{ nasm_name }}"
           target: install
           jobs: "{{ ansible_processor_nproc }}"
-          become: yes
+        become: yes
 
   - name: Remove temporary directory
     ansible.builtin.file:
       path: "{{ temp_nasm.path }}"
       state: absent
-    check_mode: false
 
-  when:
-    - nasm_binary.stat.exists
-    - nasm_version is version(nasm_revision, '<')
+
+  # install only if not in check mode and if nasm does not yet exist or if existing nasm version is lower than nasm_revision
+  when: not ansible_check_mode and
+        ((nasm_path_cmd.stdout == "") or
+        (nasm_path_cmd.stdout != "" and nasm_version is version(nasm_revision, '<')))
