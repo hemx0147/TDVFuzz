@@ -1,8 +1,14 @@
 #!/bin/env bash
 
-# Copy TDVF image and create symlink for fuzzer to run
-# requires to be run from within kafl environemtn
+# Copy TDVF image into the fw-images folder and create a symlink in the repo
+# root for the fuzzer to run.
+# requires to be run from within kafl environment
 
+# Usage: ./prepare-tdvf.sh [IMAGE_SUFFIX]
+
+# Parameters
+# IMAGE_SUFFIX  A string of characters that is appended to the TDVF basename (default: "_EDK")
+#               e.g. specifying the suffix "_kafl" will yield the image name"TDVF_kafl.fd"
 
 # exit with errorcode 1
 # optional argument: print error message.
@@ -12,6 +18,8 @@ function fatal()
     exit 1
 }
 
+SUFFIX="_EDK"
+[[ $# -gt 0 ]] && SUFFIX="$1"
 
 FW_DIR=$BKC_ROOT/fw-images
 [[ -z $TDVF_ROOT ]] && fatal "Could not find TDVF_ROOT. Verify that kAFL environment is set up."
@@ -20,7 +28,7 @@ FW_DIR=$BKC_ROOT/fw-images
 
 # copy TDVF image
 IMG=$(find $TDVF_ROOT -type f -name "OVMF.fd")
-IMG_COPY="$FW_DIR/TDVF_EDK.fd"
+IMG_COPY="$FW_DIR/TDVF$SUFFIX.fd"
 [[ -z $IMG ]] && fatal "Could not locate TDVF image in TDVF_ROOT."
 cp $IMG $IMG_COPY
 
