@@ -33,7 +33,7 @@ def get_driver_modules(log_file:str) -> Dict[str, TdvfModule]:
     with open(log_file, 'r') as f:
         log_lines = list(line.strip() for line in f.readlines())
 
-    driver_line_re = re.compile(r'Loading driver at 0x')
+    driver_line_re = re.compile(r'Loading driver at 0x.*EntryPoint=0x.*\.efi')
     # DXE Core module line is special - it does not follow the general line-pattern for drivers
     dxe_core_line_re = re.compile(r'Loading DXE CORE at 0x')
 
