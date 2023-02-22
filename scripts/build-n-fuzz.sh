@@ -10,7 +10,8 @@
 #
 # Options:
 #   -h, --help      Display this help text
-#   -b              Rebuild TDVF
+#   -b              Build TDVF
+#   -r              Delete TDVF Build directory and rebuild TDVF from scratch
 #   -v              print verbose output
 ##
 # Note: currently this script requires complete Linux Boot Fuzzing setup as specified here:
@@ -22,7 +23,11 @@
 # Global Variables
 ####################################
 
+# stop script execution if any command returns non-zero value (usually error)
+set -e
+
 # command line argument flags
+BUILD_TDVF=0
 REBUILD_TDVF=0
 VERBOSE=0
 
@@ -101,10 +106,16 @@ function edk_setup()
 # build TDVF (overwrites existing files by default)
 function build_and_link_tdvf()
 {
-    verbose_print "Building TDVF..."
-
-    # rebuild TDVF
     pushd $TDVF_ROOT > /dev/null
+
+    # delete build directory if rebuild flag set
+    if [[ $REBUILD_TDVF -eq 1 ]]
+    then
+        verbose_print "Deleting TDVF Build directory..."
+        rm -rf Build > /dev/null
+    fi
+
+    verbose_print "Rebuilding TDVF..."
     build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     [[ -f $SEC_MAP ]] || fatal "Could not find SECMAIN map file in $BUILD_DIR. Consider rebuilding TDVF."
@@ -156,6 +167,10 @@ do
             help
             ;;
         '-b')
+            BUILD_TDVF=1
+            shift   # past argument
+            ;;
+        '-r')
             REBUILD_TDVF=1
             shift   # past argument
             ;;
@@ -185,7 +200,7 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 edk_setup
 
 # rebuild TDVF if necessary
-[[ $REBUILD_TDVF -eq 1 ]] && build_and_link_tdvf
+[[ $BUILD_TDVF -eq 1 || $REBUILD_TDVF -eq 1 ]] && build_and_link_tdvf
 
 # get Intel PT code range
 get_ipt_range
