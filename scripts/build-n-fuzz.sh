@@ -1,26 +1,18 @@
 #!/bin/env bash
 
-# TODO: linux boot fuzzing setup is only required because fuzz.sh was not yet updated -> update fuzz.sh
-
 ##
 # This script performs the following actions:
 #   - set up EDK2 environment in TDVF_ROOT
 #   - (re-)build custom TDVF & create TDVF symlink in project root (optional)
 #   - start fuzzer for a few seconds (requires kafl environment)
-#   - copy fuzzing session log files (optional)
 #
 # Usage: build-n-fuzz.sh [OPTION]
 #
 # Options:
 #   -h, --help      Display this help text
-#   -c [LOG_DIR]    Copy log files from KAFL_WORKDIR into LOG_DIR (default: ./logs)
-#   -e EDKDIR       The EDK2 repository (default: TDVF_ROOT)
 #   -b              Rebuild TDVF
 #   -v              print verbose output
 ##
-# Log files include hprintf-, serial- & debug logs and will be copied to
-# directory LOGDIR (default: ./logs).
-#
 # Note: currently this script requires complete Linux Boot Fuzzing setup as specified here:
 # https://github.com/hemx0147/TDVFuzz/tree/master/bkc/kafl#linux-boot-fuzzing
 ##
@@ -31,11 +23,9 @@
 ####################################
 
 # command line argument flags
-COLLECT_LOGS=0
 REBUILD_TDVF=0
 VERBOSE=0
 
-EDK_DIR=$(realpath "$TDVF_ROOT")
 TDVF_DSC="$EDK_DIR/OvmfPkg/IntelTdx/IntelTdxX64.dsc"
 BUILD_DIR="$EDK_DIR/Build/IntelTdx/DEBUG_GCC5/FV"
 TDVF_BIN="$BUILD_DIR/OVMF.fd"
@@ -43,8 +33,6 @@ SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
 SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
 TDVF_IMG_NAME="TDVF_edk.fd"
 TDVF_LINK_NAME="TDVF.fd"
-LOG_DIR="logs"
-SEC_RANGE_SCRIPT="./get_sec_range.sh"
 IPT_RANGE=""
 
 ####################################
@@ -90,14 +78,14 @@ function verbose_print()
 # set up EDK build environment (env will be active only for this script instance)
 function edk_setup()
 {
-    pushd $EDK_DIR > /dev/null
+    pushd $TDVF_ROOT > /dev/null
     num_build_files=$(find BaseTools -type f -name "*.pyc" -or -name "*.o" | wc -l)
     if [[ $num_build_files -eq 0 ]]
     then
     	verbose_print "Building BaseTools..."
         make -C BaseTools
     else
-        verbose_print "Using EDK BaseTools at $(realpath $EDK_DIR/BaseTools)"
+        verbose_print "Using EDK BaseTools at $(realpath $TDVF_ROOT/BaseTools)"
     fi
 
     if [[ -z "$WORKSPACE" || -z "$EDK_TOOLS_PATH" || -z "$CONF_PATH" ]]
@@ -110,25 +98,16 @@ function edk_setup()
     popd > /dev/null
 }
 
-# collect logfiles produced by fuzzer (overwrite by default)
-function copy_logs()
-{
-    verbose_print "Collecting logfiles..."
-    [[ -d $LOG_DIR ]] && rm -rf $LOG_DIR/* || mkdir $LOG_DIR
-    cp $KAFL_WORKDIR/*.log $LOG_DIR
-    verbose_print "Log files saved to $(realpath $LOG_DIR)"
-}
-
 # build TDVF (overwrites existing files by default)
 function build_and_link_tdvf()
 {
     verbose_print "Building TDVF..."
 
     # rebuild TDVF
-    pushd $EDK_DIR > /dev/null
+    pushd $TDVF_ROOT > /dev/null
     build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
-    [[ -f $SEC_MAP ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
+    [[ -f $SEC_MAP ]] || fatal "Could not find SECMAIN map file in $BUILD_DIR. Consider rebuilding TDVF."
     popd > /dev/null
 
     # copy TDVF image
@@ -176,28 +155,9 @@ do
         '-h'|'--help')
             help
             ;;
-        '-c')
-            if [[ "$2" != -* ]]
-            then
-              [[ -n "$2" ]] && LOG_DIR="$2"
-              shift   # past value
-            fi
-            COLLECT_LOGS=1
-            shift   # past argument
-            ;;
         '-b')
             REBUILD_TDVF=1
-        	shift   # past argument
-            ;;
-        '-e')
-            [[ -z "$2" ]] && fatal "Missing parameter EDKDIR"
-            EDK_DIR=$(realpath "$2")
-            BUILD_DIR="$EDK_DIR/Build/OvmfX64/DEBUG_GCC5/FV"
-            TDVF_BIN="$BUILD_DIR/OVMF.fd"
-            SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
-            SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
-        	shift   # past argument
-            shift   # past value
+            shift   # past argument
             ;;
         '-v')
             VERBOSE=1
@@ -235,9 +195,6 @@ verbose_print "Running fuzzer for a few seconds..."
 pushd $BKC_ROOT > /dev/null
 timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
 popd > /dev/null
-
-# collect logfiles from KAFL_WORKDIR
-[[ $COLLECT_LOGS -eq 1 ]] && copy_logs
 
 verbose_print "Done."
 exit 0
