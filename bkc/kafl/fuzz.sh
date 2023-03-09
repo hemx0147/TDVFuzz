@@ -185,8 +185,6 @@ function run()
 		-ip0 $ip0_a-$ip0_b \
 		-ip1 $ip1_a-$ip1_b \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		$KAFL_OPTS "$@"
