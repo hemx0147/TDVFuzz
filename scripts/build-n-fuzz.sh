@@ -116,7 +116,7 @@ function build_and_link_tdvf()
     fi
 
     verbose_print "Rebuilding TDVF..."
-    build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE
+    build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE -D SUPER_TEST_FLAG
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     [[ -f $SEC_MAP ]] || fatal "Could not find SECMAIN map file in $BUILD_DIR. Consider rebuilding TDVF."
     popd > /dev/null
@@ -208,7 +208,12 @@ get_ipt_range
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 verbose_print "Running fuzzer for a few seconds..."
 pushd $BKC_ROOT > /dev/null
-timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --log-hprintf --log --debug -ip0 $IPT_RANGE
+
+# ip range of BdsDxe module
+IPT_RANGE=0x3de06240-0x3de22f96
+# agent-fuzzing approach currently needs kickstart value bigger than injection-buffer size towork
+timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --kickstart 16000 --log-hprintf --log --debug -ip0 $IPT_RANGE
+
 popd > /dev/null
 
 verbose_print "Done."
