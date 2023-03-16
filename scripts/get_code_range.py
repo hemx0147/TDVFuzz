@@ -41,6 +41,9 @@ def get_driver_modules(log_file:str) -> Dict[str, TdvfModule]:
     for line in log_lines:
         if driver_line_re.search(line):
             name = get_module_name_from_line(line)
+            if "HelloWorld" in name:
+                # ignore HelloWorld.efi module
+                continue
             address = get_module_address_from_line(line)
         elif dxe_core_line_re.search(line):
             name = "DxeCore"
