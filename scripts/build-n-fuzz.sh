@@ -38,7 +38,6 @@ SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
 SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
 TDVF_IMG_NAME="TDVF_kafl.fd"
 TDVF_LINK_NAME="TDVF.fd"
-IPT_RANGE=""
 
 ####################################
 # Function Definitions
@@ -132,24 +131,6 @@ function build_and_link_tdvf()
     verbose_print "Symlink $TDVF_IMG_NAME -> $TDVF_LINK_NAME created"
 }
 
-# get Intel PT code range for SecMain module
-function get_ipt_range()
-{
-    verbose_print "Obtaining IntelPT code range for SecMain module..."
-
-    # get SecMain .text start & end from SecMain map & debug file
-    txt_size="0x$(readelf -SW $SEC_DBG | grep -w '.text ' | awk '{print $7}')"
-    ipt_start="`grep -oE '.textbaseaddress=0x[0-9a-fA-F]{1,16}' $SEC_MAP | awk -F '=' '{print $2}'`"
-    ipt_end="$(printf 0x%0.10x $(($ipt_start + $txt_size)))"
-    IPT_RANGE=$ipt_start-$ipt_end
-
-    # ensure that found IntelPT addresses match 64-bit hexadecimal address format
-    re_addr="^0x[0-9a-fA-F]{1,16}$"
-    [[ $ipt_start =~ $re_addr ]] || fatal "Bad format of IntelPT range start $ipt_start. Check $SEC_MAP for potential issues."
-    [[ $ipt_end =~ $re_addr ]] || fatal "Bad format of IntelPT range end $ipt_start. Check $SEC_MAP for potential issues."
-
-    verbose_print "Using Intel PT code range $IPT_RANGE"
-}
 
 
 ####################################
@@ -202,17 +183,12 @@ edk_setup
 # rebuild TDVF if necessary
 [[ $BUILD_TDVF -eq 1 || $REBUILD_TDVF -eq 1 ]] && build_and_link_tdvf
 
-# get Intel PT code range
-get_ipt_range
-
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 verbose_print "Running fuzzer for a few seconds..."
 pushd $BKC_ROOT > /dev/null
 
-# ip range of BdsDxe module
-IPT_RANGE=0x3de06240-0x3de22f96
 # agent-fuzzing approach currently needs kickstart value bigger than injection-buffer size towork
-timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --kickstart 16000 --log-hprintf --log --debug -ip0 $IPT_RANGE
+timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --kickstart 16000 --log-hprintf --log --debug
 
 popd > /dev/null
 
