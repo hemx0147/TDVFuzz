@@ -41,6 +41,7 @@ class Action(Enum):
 class Flag(Enum):
   FUZZ_BOOT_LOADER = "CONFIG_KAFL_FUZZ_BOOT_LOADER"
   FUZZ_VIRTIO_READ = "CONFIG_KAFL_FUZZ_VIRTIO_READ"
+  FUZZ_BLK_DEV_INIT = "CONFIG_KAFL_FUZZ_BLK_DEV_INIT"
 
 
 def load_baselib(baselib: str) -> List[str]:
