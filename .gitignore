@@ -29,6 +29,7 @@ fuzz.sh
 TDVF.fd
 initrd.cpio.gz
 bzImage
+image.img
 
 # IDE
 .vscode/
