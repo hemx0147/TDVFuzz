@@ -1,22 +1,16 @@
 #!/bin/env python
 
 # configure kAFL fuzzing harnesses for TDVF
-# behavior should be similar to $LINUX_GUEST/scripts/config, but for now only directly modify BaseLib (no config file)
+# behavior should be similar to $LINUX_GUEST/scripts/config, but for now
+# this script directly modifies the KaflAgentLib (no config file)
+#
+# Note: the flag options in this script must be kept in sync with
+# available harness config flags in kAFL agent & TDVF source code.
 
-
-# argument parsing:
-# -e | --enable <FLAGNAME>
-#   open config file, set FLAGNAME to true ("=y")
-#   find "#define FLAGNAME" in TDVF BaseLib 
-#   if line commented out (i.e. "// " at beginning), uncomment (i.e. remove "// ")
-#   if line not commented out, do nothing
-# -d | --disable <FLAGNAME>
-#   open config file, set FLAGNAME to false ("# FLAGNAME is not set")
-#   find "#define FLAGNAME" in TDVF BaseLib 
-#   if line commented out (i.e. "// " at beginning), do nothing
-#   if line not commented out, out-comment line (i.e. add "// ")
-# -p | --print
-#   print current config (i.e. contents of config file and/or "#define FLAGNAME" lines in TDVF BaseLib)
+# arguments:
+# -e | --enable <FLAGNAME>    enable harness <FLAGNAME> in kAFL agent
+# -d | --disable <FLAGNAME>   disable harness <FLAGNAME> in kAFL agent
+# -p | --print                print current config
 
 import os
 from enum import Enum
@@ -26,9 +20,9 @@ from argparse import ArgumentParser
 
 
 # filled from env var
-# TODO: add error handling if env vars / baselib cannot be found
+# TODO: add error handling if env vars / agentlib cannot be found
 g_tdvf_root = os.environ["TDVF_ROOT"]
-g_baselib_path = str(next(Path(g_tdvf_root).rglob('BaseLib.h')))
+g_agentlib_path = str(next(Path(g_tdvf_root).rglob('KaflAgentLib.h')))
 g_config_boundary_start = "/** KAFL HARNESS CONFIGURATION START **/"
 g_config_boundary_end = "/** KAFL HARNESS CONFIGURATION END **/"
 g_eol = '\r\n'
@@ -44,13 +38,13 @@ class Flag(Enum):
   FUZZ_BLK_DEV_INIT = "CONFIG_KAFL_FUZZ_BLK_DEV_INIT"
 
 
-def load_baselib(baselib: str) -> List[str]:
+def load_agentlib(agentlib: str) -> List[str]:
   '''
-  Read-in the TDVF BaseLib header file and split it by lines so its content can be modified
-  @param baselib Path to the BaseLib header
-  @return mapping of BaseLib line numbers to lines
+  Read-in the TDVF KaflAgentLib header file and split it by lines so its content can be modified
+  @param agentlib Path to the KaflAgentLib header
+  @return mapping of KaflAgentLib line numbers to lines
   '''
-  with open(baselib, 'r', newline='') as f:
+  with open(agentlib, 'r', newline='') as f:
     lines = f.readlines()
   
   if lines[0][-2:] == '\r\n':
@@ -62,7 +56,7 @@ def load_baselib(baselib: str) -> List[str]:
 
 def create_config_lines(config: Dict[Flag, bool]) -> List[str]:
   '''
-  Replace the kAFL harness configuration in TDVF BaseLib header
+  Replace the kAFL harness configuration in TDVF KaflAgentLib header
   '''
   comment_str = '// '
   def_str = '#define '
@@ -74,11 +68,11 @@ def create_config_lines(config: Dict[Flag, bool]) -> List[str]:
     config_lines.append(prefix + def_str + flag.value + g_eol)
   return config_lines
 
-def write_baselib(baselib: str, head: List[str], config: List[str], tail: List[str]) -> None:
+def write_agentlib(agentlib: str, head: List[str], config: List[str], tail: List[str]) -> None:
   '''
-  Write the given BaseLib parts back to file
+  Write the given KaflAgentLib parts back to file
   '''
-  with open(baselib, 'w') as f:
+  with open(agentlib, 'w') as f:
     f.writelines(head)
     f.writelines(config)
     f.writelines(tail)
@@ -155,8 +149,8 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   # get current setup
-  current_baselib = load_baselib(g_baselib_path)
-  lib_head, crnt_lib_config, lib_tail = split_lib_parts(current_baselib)
+  current_agentlib = load_agentlib(g_agentlib_path)
+  lib_head, crnt_lib_config, lib_tail = split_lib_parts(current_agentlib)
   crnt_config = get_current_config(crnt_lib_config)
 
   # perform user-action
@@ -165,7 +159,7 @@ if __name__ == "__main__":
     exit(0)
 
   # create copy of current lib
-  # write_baselib(g_baselib_path + '.bkup', lib_head, crnt_lib_config, lib_tail)
+  # write_agentlib(g_agentlib_path + '.bkup', lib_head, crnt_lib_config, lib_tail)
 
   new_config = None
   if args.enable is not None:
@@ -174,6 +168,6 @@ if __name__ == "__main__":
     new_config = disable_flag(Flag._member_map_[args.disable], crnt_config)
 
   new_lib_config = create_config_lines(new_config)
-  write_baselib(g_baselib_path, lib_head, new_lib_config, lib_tail)
+  write_agentlib(g_agentlib_path, lib_head, new_lib_config, lib_tail)
   # print("New Config")
   # print_config(new_config)
