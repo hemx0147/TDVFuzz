@@ -205,8 +205,6 @@ function debug()
 	kafl_debug.py \
 		--resume --memory $MEMSIZE \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		--action gdb --input $TARGET_PAYLOAD "$@"
