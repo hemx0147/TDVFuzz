@@ -132,6 +132,7 @@ function print_module_symbols()
     FILE_BASENAME=$(echo ${FILE_NAME} | sed -e "s/.efi$//")
 
     verbose_print "searching symbols for module ${FILE_BASENAME}..."
+    [[ $FILE_BASENAME == "HelloWorld" ]] && continue
 
     EFIFILE="`find ${SEARCH_DIR} -maxdepth 1 -type f -name ${FILE_NAME}`"
     if [[ -z ${EFIFILE} ]]
