@@ -38,6 +38,7 @@ SEC_MAP="$BUILD_DIR/SECFV.Fv.map"
 SEC_DBG="$BUILD_DIR/../X64/SecMain.debug"
 TDVF_IMG_NAME="TDVF_kafl.fd"
 TDVF_LINK_NAME="TDVF.fd"
+KAFL_LOG="$KAFL_WORKDIR/hprintf_00.log"
 
 ####################################
 # Function Definitions
@@ -131,6 +132,33 @@ function build_and_link_tdvf()
     verbose_print "Symlink $TDVF_IMG_NAME -> $TDVF_LINK_NAME created"
 }
 
+function run_fuzzer()
+{
+    verbose_print "Running fuzzer for a few seconds..."
+    pushd $BKC_ROOT > /dev/null
+    # agent-fuzzing approach currently needs kickstart value bigger than injection-buffer size towork
+    timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --kickstart 16000 --log-hprintf --log --debug
+    popd > /dev/null
+}
+
+function update_kafl_agent_lib_state_address()
+{
+    # update kafl agent lib with correct state address if hardcoded & real addresses do not match
+    verbose_print "Global kAFL agent state addresses do not match. Updating kAFL agent library."
+
+    EXPECTED_ADDR=$(grep -oE "expected: 0x[a-fA-F0-9]{4,16}" $KAFL_LOG | awk '{print $2}')
+    REAL_ADDR=$(grep -oE "real: 0x[a-fA-F0-9]{4,16}" $KAFL_LOG | awk '{print $2}')
+    AGENT_LIB="$TDVF_ROOT/MdePkg/Include/Library/KaflAgentLib.h"
+    AGENT_LIB_LINE=$(grep "#define KAFL_AGENT_STATE_STRUCT_ADDR $EXPECTED_ADDR" $AGENT_LIB)
+
+    [[ -z $AGENT_LIB_LINE ]] && fatal "Could update agent state address in agent lib because address definition cannot be found"
+
+    AGENT_LIB_NEW_LINE=$(echo $AGENT_LIB_LINE | sed "s/$EXPECTED_ADDR/$REAL_ADDR/")
+
+    sed "s/$AGENT_LIB_LINE/$AGENT_LIB_NEW_LINE/" $AGENT_LIB > $AGENT_LIB.tmp
+    mv $AGENT_LIB.tmp $AGENT_LIB
+}
+
 
 
 ####################################
@@ -184,13 +212,16 @@ edk_setup
 [[ $BUILD_TDVF -eq 1 || $REBUILD_TDVF -eq 1 ]] && build_and_link_tdvf
 
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
-verbose_print "Running fuzzer for a few seconds..."
-pushd $BKC_ROOT > /dev/null
+run_fuzzer
 
-# agent-fuzzing approach currently needs kickstart value bigger than injection-buffer size towork
-timeout -s SIGINT 10s ./fuzz.sh run $LINUX_GUEST -t 2 -ts 1 -p 1 --kickstart 16000 --log-hprintf --log --debug
-
-popd > /dev/null
+STATE_ERROR=$(grep "KAFL AGENT STATE ADDRESS MISMATCH!" $KAFL_LOG)
+if [[ -n $STATE_ERROR ]]
+then
+    update_kafl_agent_lib_state_address
+    edk_setup
+    build_and_link_tdvf
+    run_fuzzer
+fi
 
 verbose_print "Done."
 exit 0
