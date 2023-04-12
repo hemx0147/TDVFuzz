@@ -225,8 +225,6 @@ function single()
 		-ip0 $ip0_a-$ip0_b \
 		-ip1 $ip1_a-$ip1_b \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		--log-hprintf \
@@ -257,8 +255,6 @@ function triage()
 		-ip0 $ip0_a-$ip0_b \
 		-ip1 $ip1_a-$ip1_b \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		--action triage --input $TARGET_PAYLOAD "$@"
@@ -284,8 +280,6 @@ function noise()
 		-ip0 $ip0_a-$ip0_b \
 		-ip1 $ip1_a-$ip1_b \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		--action noise -n 1000 --input $TARGET_PAYLOAD "$@"
@@ -311,8 +305,6 @@ function cov()
 		-ip0 $ip0_a-$ip0_b \
 		-ip1 $ip1_a-$ip1_b \
 		--bios $BIOS_IMAGE \
-		--initrd $INITRD_IMAGE \
-		--kernel $TARGET_BIN \
 		--work-dir $WORK_DIR \
 		--sharedir $SHARE_DIR \
 		--input $WORK_DIR --log-hprintf "$@"
