@@ -23,9 +23,6 @@
 # Global Variables
 ####################################
 
-# stop script execution if any command returns non-zero value (usually error)
-set -e
-
 # command line argument flags
 BUILD_TDVF=0
 REBUILD_TDVF=0
@@ -117,6 +114,11 @@ function build_and_link_tdvf()
 
     verbose_print "Rebuilding TDVF..."
     build -n $(nproc) -p $TDVF_DSC -t GCC5 -a X64 -D TDX_EMULATION_ENABLE=FALSE -D DEBUG_ON_SERIAL_PORT=TRUE -D SUPER_TEST_FLAG
+    if [[ $? -ne 0 ]]
+    then
+        popd > /dev/null
+        fatal "Building TDVF failed."
+    fi
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     [[ -f $SEC_MAP ]] || fatal "Could not find SECMAIN map file in $BUILD_DIR. Consider rebuilding TDVF."
     popd > /dev/null
@@ -141,17 +143,35 @@ function run_fuzzer()
     popd > /dev/null
 }
 
-function update_kafl_agent_lib_state_address()
+function update_kafl_agent_state_address()
 {
-    # update kafl agent lib with correct state address if hardcoded & real addresses do not match
+    # update kafl agent with correct state address if hardcoded & real addresses do not match
     verbose_print "Global kAFL agent state addresses do not match. Updating kAFL agent library."
 
-    EXPECTED_ADDR=$(grep -oE "expected: 0x[a-fA-F0-9]{4,16}" $KAFL_LOG | awk '{print $2}')
-    REAL_ADDR=$(grep -oE "real: 0x[a-fA-F0-9]{4,16}" $KAFL_LOG | awk '{print $2}')
+    EXPECTED_ADDR=$(echo "$1" | grep -oE "expected: 0x[a-fA-F0-9]{4,16}" | awk '{print $2}')
+    REAL_ADDR=$(echo "$1" | grep -oE "real: 0x[a-fA-F0-9]{4,16}" | awk '{print $2}')
     AGENT_LIB="$TDVF_ROOT/MdePkg/Include/Library/KaflAgentLib.h"
     AGENT_LIB_LINE=$(grep "#define KAFL_AGENT_STATE_STRUCT_ADDR $EXPECTED_ADDR" $AGENT_LIB)
 
     [[ -z $AGENT_LIB_LINE ]] && fatal "Could update agent state address in agent lib because address definition cannot be found"
+
+    AGENT_LIB_NEW_LINE=$(echo $AGENT_LIB_LINE | sed "s/$EXPECTED_ADDR/$REAL_ADDR/")
+
+    sed "s/$AGENT_LIB_LINE/$AGENT_LIB_NEW_LINE/" $AGENT_LIB > $AGENT_LIB.tmp
+    mv $AGENT_LIB.tmp $AGENT_LIB
+}
+
+function update_kafl_agent_payload_buf_address()
+{
+    # update kafl agent with correct payload buffer address if hardcoded & real addresses do not match
+    verbose_print "Global kAFL agent payload buffer addresses do not match. Updating kAFL agent library."
+
+    EXPECTED_ADDR=$(echo "$1" | grep -oE "expected: 0x[a-fA-F0-9]{4,16}" | awk '{print $2}')
+    REAL_ADDR=$(echo "$1" | grep -oE "real: 0x[a-fA-F0-9]{4,16}" | awk '{print $2}')
+    AGENT_LIB="$TDVF_ROOT/MdePkg/Include/Library/KaflAgentLib.h"
+    AGENT_LIB_LINE=$(grep "#define KAFL_AGENT_PAYLOAD_BUF_ADDR $EXPECTED_ADDR" $AGENT_LIB)
+
+    [[ -z $AGENT_LIB_LINE ]] && fatal "Could update agent payload buffer address in agent lib because address definition cannot be found"
 
     AGENT_LIB_NEW_LINE=$(echo $AGENT_LIB_LINE | sed "s/$EXPECTED_ADDR/$REAL_ADDR/")
 
@@ -214,10 +234,24 @@ edk_setup
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 run_fuzzer
 
-STATE_ERROR=$(grep "KAFL AGENT STATE ADDRESS MISMATCH!" $KAFL_LOG)
-if [[ -n $STATE_ERROR ]]
+AGENT_STATE_ERROR=$(grep "KAFL AGENT STATE ADDRESS MISMATCH!" $KAFL_LOG)
+AGENT_PAYLOAD_ERROR=$(grep "KAFL AGENT PAYLOAD BUFFER ADDRESS MISMATCH!" $KAFL_LOG)
+echo "$AGENT_STATE_ERROR"
+echo "$AGENT_PAYLOAD_ERROR"
+
+RERUN=0
+if [[ -n $AGENT_STATE_ERROR ]]
 then
-    update_kafl_agent_lib_state_address
+    RERUN=1
+    update_kafl_agent_state_address "$AGENT_STATE_ERROR"
+fi
+if [[ -n $AGENT_PAYLOAD_ERROR ]]
+then
+    RERUN=1
+    update_kafl_agent_payload_buf_address "$AGENT_PAYLOAD_ERROR"
+fi
+if [[ $RERUN -ne 0 ]]
+then
     edk_setup
     build_and_link_tdvf
     run_fuzzer
