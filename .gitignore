@@ -9,6 +9,7 @@ smatcher.egg-info/
 bkc/coverage/fast_matcher/target/
 /workdir
 /fw-images
+/sharedir
 
 # tools
 /kafl/
