@@ -75,11 +75,16 @@ def get_log_files(dir_path: str):
 def file_get_exceptions(fpath: str):
   '''Return a mapping of exception codes to number of occurences for this file'''
   with open(fpath, 'r') as f:
-    exceptions = list(filter(lambda line: 'Exception Type' in line, f.readlines()))
-  
-  # reduce whole lines to only exception code
+    lines = f.readlines()
+
+  # reduce whole lines to exception codes only
   ec_re = re.compile(r'Exception Type - [0-9A-F]{1,2}')
-  exception_codes = list(map(lambda ec: int(ec, 16), list(map(lambda ex: ec_re.findall(ex)[0].split(' ')[-1], exceptions))))
+  exceptions = list(map(lambda ex: ec_re.findall(ex), lines))
+  
+  # findall() returns list -> we have list of lists -> flatten it
+  exceptions = [e for elist in exceptions for e in elist]
+
+  exception_codes = list(map(lambda ec: int(ec.split(' ')[-1], 16), exceptions))
   
   return OrderedDict(sorted(dict(Counter(exception_codes)).items()))
 
