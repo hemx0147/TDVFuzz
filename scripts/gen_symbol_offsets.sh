@@ -228,3 +228,6 @@ if [[ $HAVE_LOG -eq 1 ]]
 then
   [[ -f $LOGFILE ]] && print_module_symbols $LOGFILE || fatal "log file $LOGFILE does not exist"
 fi
+
+# add command to automatically connect to waiting fuzzer debug process
+[[ $PRINT_SCRIPT -eq 1 ]] && echo "target remote localhost:1234" >> $SCRIPT_NAME
