@@ -164,7 +164,8 @@ function run()
 	date > $WORK_DIR/target/timestamp.log
 	cp $TARGET_BIN $TARGET_MAP $TARGET_ELF $WORK_DIR/target/
 	test -f $TARGET_CONF && cp $TARGET_CONF $WORK_DIR/target/config
-	cp -r $TDVF_BUILD_DIR $WORK_DIR/target/TDVF
+	mkdir $WORK_DIR/target/TDVF > /dev/null
+	cp -u -r $TDVF_ROOT/*Pkg $TDVF_BUILD_DIR $WORK_DIR/target/TDVF
 	echo "kAFL options: -m $MEMSIZE -ip0 $ip0_a-$ip0_b -ip1 $ip1_a-$ip1_b $KAFL_OPTS $*" > $WORK_DIR/target/kafl_args.txt
 
 	## collect some more detailed target-specific info to help reproduce
