@@ -15,6 +15,7 @@ from collections import Counter, OrderedDict
 #   FILE    Path to a findings log file (e.g. crash_12345.log)
 ##
 
+FINDINGS_DIR=os.environ['KAFL_WORKDIR'] + '/logs'
 
 # list of exception codes & names obtained from https://wiki.osdev.org/Exceptions
 EXCEPTIONS = {
@@ -119,7 +120,8 @@ if __name__ == "__main__":
     '-d',
     metavar='LOGDIR',
     type=dir_path,
-    help='Path to a directory containing the findings log files (e.g. $KAFL_WORKDIR/logs).'
+    help='Path to a directory containing the findings log files (default: $KAFL_WORKDIR/logs).',
+    default=FINDINGS_DIR
   )
 
   args = parser.parse_args()
@@ -127,9 +129,6 @@ if __name__ == "__main__":
   # variables set by command line arguments
   log_files = args.logfile
   log_dir = args.d
-
-  if not log_files and not log_dir:
-    error('specify at least one log file or a logfile directory.')
 
   if log_dir:
     log_files = get_log_files(log_dir)

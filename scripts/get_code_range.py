@@ -9,6 +9,11 @@ from typing import Tuple, Dict
 from scripts.tdvf_module import *
 
 
+TDVF_DIR=os.environ['TDVF_ROOT']
+TDVF_BUILD_DIR=TDVF_DIR + '/Build'
+LOG_DIR=os.environ['KAFL_WORKDIR']
+LOG_FILE=LOG_DIR + '/hprintf_00.log'
+
 # memory addresses have typical hex format (length 10 to 12)
 ADDRESS_RE = re.compile(r'0x[0-9a-fA-F]{8,16}')
 
@@ -111,16 +116,22 @@ if __name__ == "__main__":
         epilog='Information about which modules were loaded needs to be provided by a qemu debug log file. The .text section information will be extracted from TDVF .debug build files. This script requires the python pyelftools package.'
     )
     parser.add_argument(
-        'logfile',
+        '-l',
+        '--logfile',
         metavar='LOGFILE',
         type=file_path,
-        help='Path to a file containing debug prints of a qemu TDVF session'
+        help='Path to a file containing debug prints of a qemu TDVF session (default: KAFL_WORKDIR/hprintf_00.log)',
+        required=False,
+        default=file_path(LOG_FILE)
     )
     parser.add_argument(
-        'builddir',
+        '-b',
+        '--builddir',
         metavar='BUILDDIR',
         type=dir_path,
-        help='Path to TDVF Build directory containing TDVF module .debug and FV map files (e.g. tdvf/Build)'
+        help='Path to TDVF Build directory containing TDVF module .debug and FV map files (default: TDVF_ROOT/Build)',
+        required=False,
+        default=dir_path(TDVF_BUILD_DIR)
     )
     parser.add_argument(
         'module',
@@ -139,6 +150,7 @@ if __name__ == "__main__":
     )
     me_group.add_argument(
         '-j',
+        '--json',
         metavar='FILENAME',
         type=str,
         help='store the module information in a json file'
@@ -151,7 +163,7 @@ if __name__ == "__main__":
     build_dir = args.builddir
     search_modules = args.module     # value is None if no argument given
     print_table = args.table
-    json_file = args.j
+    json_file = args.json
 
     # parse debug log to get list of modules with their base address
     modules = get_driver_modules(log_file)

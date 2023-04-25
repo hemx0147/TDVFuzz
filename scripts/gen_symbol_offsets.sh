@@ -4,26 +4,22 @@
 # Print a mapping of TDVF modules loaded in a kAFL/Qemu session to their
 # corresponding memory offsets.
 #
-# Usage: gen_symbol_offsets.sh [OPTIONS] [BUILDDIR]
+# Usage: gen_symbol_offsets.sh [OPTIONS]
 #
 # Options:
 #   -h, --help      display this help text
-#   -l [LOGFILE]    Use a TDVF log file LOGFILE containing addresses of modules loaded
-#                   in the Qemu session (default: ./debug.log)
-#   -p PATH         Path to peinfo executable PATH (default: PEINFO_ROOT/peinfo)
+#   -l LOGFILE      Use a TDVF log file LOGFILE containing addresses of modules loaded
+#                   in the Qemu session (default: KAFL_WORKDIR/hprintf_00.log)
+#   -b BUILDDIR     Path to the EDK2/TDVF Build directory (default: TDVF_ROOT/Build)
 #   -s [NAME]       Write output to a GDB script file with name NAME (default: gdbscript)
 #   -v              print verbose output
-#
-# Parameters:
-#   BUILDDIR    Path to the EDK2/TDVF Build directory (default: TDVF_ROOT/Build)
 ##
 # Information about loaded modules is provided by a log file containing
-# TDVF debug prints. If no log file should be provided, this script will
-# only search symbols for the SecMain module.
+# TDVF debug prints.
 #
 # If the log file option (-l) is not specified, the script will only print
 # offsets of the SecMain module.
-
+#
 # The output can be provided as a GDB script that, if executed in GDB,
 # will automatically import debug symbols for all modules loaded in the
 # Qemu session.
@@ -39,7 +35,7 @@ BUILD_DIR=$(realpath "$TDVF_ROOT/Build")
 SEARCH_DIR="$BUILD_DIR/OvmfX64/DEBUG_GCC5/X64"
 PEINFO=$(realpath "$PEINFO_ROOT/peinfo")
 SCRIPT_NAME="gdbscript"
-LOGFILE="debug.log"
+LOGFILE=$(realpath "$KAFL_WORKDIR/hprintf_00.log")
 PRINT_SCRIPT=0
 HAVE_LOG=0
 VERBOSE=0
@@ -109,6 +105,8 @@ function print_secmain_symbols()
   SEC_MAP="`find $BUILD_DIR -type f -name 'SECFV.Fv.map'`"
   [[ -z ${SEC_MAP} ]] && fatal "Could not find SECFV map file in build directory. Consider rebuilding TDVF."
 
+  verbose_print "found $SEC_MAP"
+
   TEXT="`grep -oE '.textbaseaddress=0x[0-9a-fA-F]{1,16}' $SEC_MAP | awk -F '=' '{print $2}'`"
   SYMFILE="`find ${SEARCH_DIR} -maxdepth 1 -type f -name ${DEBUG_FILE}`"
   if [[ -z ${SYMFILE} ]]
@@ -174,17 +172,15 @@ do
             help
             ;;
         '-l')
-            if [[ "$2" != -* ]]
-            then
-              [[ -n "$2" ]] && LOGFILE="$2"
-              shift   # past value
-            fi
+            LOGFILE=$(realpath "$2")
             HAVE_LOG=1
+            shift   # past value
             shift   # past argument
             ;;
-        '-p')
+        '-b')
             [[ -z "$2" ]] && fatal "Missing parameter PATH"
-            PEINFO="$2"
+            BUILD_DIR=$(realpath "$2")
+            SEARCH_DIR="$BUILD_DIR/OvmfX64/DEBUG_GCC5/X64"
             shift   # past argument
             shift   # past value
             ;;
@@ -206,8 +202,6 @@ do
             ;;
         *)
             POSITIONAL_ARGS+=("$1") # save positional arg
-            BUILD_DIR=$(realpath "$1")
-            SEARCH_DIR="$BUILD_DIR/OvmfX64/DEBUG_GCC5/X64"
             shift   # past argument
             ;;
     esac
@@ -216,6 +210,7 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
 [[ -d "$BUILD_DIR" ]] || fatal "invalid path to build directory \"$BUILD_DIR\""
+echo $BUILD_DIR
 
 # if output should be saved in script: delete old script file if it exists
 [[ $PRINT_SCRIPT -eq 1 ]] && [[ -f $SCRIPT_NAME ]] && rm $SCRIPT_NAME

@@ -21,7 +21,7 @@
 ####################################
 # Global Variables
 ####################################
-WORK_DIR=$KAFL_WORKDIR
+WORK_DIR=$(realpath "$KAFL_WORKDIR")
 
 ####################################
 # Function Definitions
