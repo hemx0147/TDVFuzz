@@ -117,7 +117,7 @@ function build_and_link_tdvf()
     if [[ $? -ne 0 ]]
     then
         popd > /dev/null
-        fatal "Building TDVF failed."
+        exit 1
     fi
     [[ -f $TDVF_BIN ]] || fatal "Could not find TDVF binary in $BUILD_DIR. Consider rebuilding TDVF."
     [[ -f $SEC_MAP ]] || fatal "Could not find SECMAIN map file in $BUILD_DIR. Consider rebuilding TDVF."
