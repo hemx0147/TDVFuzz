@@ -1,0 +1,58 @@
+ERR:    TNT 413 at position <0xfffce530,0xfffce530>                                                                                                      
+[QEMU-NYX] Warning: libxdc_decode returned decoder_error                                                                                                 
+KVM internal error. Suberror: 1                                                                                                                          
+emulation failure                                                                                                                                        
+ATTEMPT TO SHUTDOWN MACHINE (ret < 0)!                                                                                                                   
+RAX=00000000000065d6 RBX=0000000000000083 RCX=0000000000000000 RDX=0000000000008001                                                                      
+RSI=0000000000000004 RDI=000000000000654d RBP=0000000000000000 RSP=0000000000000088                                                                      
+R8 =0000000000000001 R9 =0000000000000000 R10=00000000fffdac72 R11=000000000000000b                                                                      
+R12=0000000000006b40 R13=0000000000006530 R14=000000000080a460 R15=000000000080a910                                                                      
+RIP=000000005b000000 RFL=00010082 [--S----] CPL=0 II=0 A20=1 SMM=0 HLT=0                                                                                 
+ES =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+CS =0018 0000000000000000 ffffffff 00a09b00 DPL=0 CS64 [-RA]                                                                                             
+SS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+DS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+FS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+GS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+LDT=0000 0000000000000000 0000ffff 00008200 DPL=0 LDT                                                                                                    
+TR =0000 0000000000000000 0000ffff 00008b00 DPL=0 TSS64-busy                                                                                             
+GDT=     00000000ffffff10 00000027                                                                                                                       
+IDT=     000000000080edd8 0000021f                                                                                                                       
+CR0=80000033 CR2=ffffffffffffffff CR3=0000000000800000 CR4=00000668                                                                                      
+DR0=0000000000000000 DR1=0000000000000000 DR2=0000000000000000 DR3=0000000000000000                                                                      
+DR6=00000000ffff0ff0 DR7=0000000000000400                                                                                                                
+EFER=0000000000000d00                                                                                                                                    
+Code=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <00> 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00                                                                                                                                                      
+
+
+ERR:    TNT 604 at position <0xfffce546,0xfffce546>                                                                                                      
+[QEMU-NYX] Warning: libxdc_decode returned decoder_error                                                                                                 
+02:22:34:  6398 exec/s,  390 edges, 18% favs pending, findings: <13, 16, 7>                                                                              
+ERR:    TNT 576 at position <0xfffce546,0xfffce546>                                                                                                      
+[QEMU-NYX] Warning: libxdc_decode returned decoder_error                                                                                                 
+02:23:19: Got  147 from  120: exit=R,  0/ 2 bits,  0 favs, 1.98msec, 0.7KB (afl_splice)                                                                  
+KVM internal error. Suberror: 1ges, 18% favs pending, findings: <13, 16, 7>                                                                              
+emulation failure                                                                                                                                        
+ATTEMPT TO SHUTDOWN MACHINE (ret < 0)!                                                                                                                   
+RAX=ffffffffcc00019f RBX=00000000fffd0666 RCX=0000000000000000 RDX=0000000000000001                                                                      
+RSI=0000000000010000 RDI=000000000000019f RBP=68736148203a4454 RSP=000000000080de30                                                                      
+R8 =0000000000000001 R9 =0000000000000000 R10=00000000fffdc201 R11=0000000000000002                                                                      
+R12=6967657220736920 R13=202e646572657473 R14=30203d206b73616d R15=64697567202c3478                                                                      
+RIP=00000000ff203d20 RFL=00010002 [-------] CPL=0 II=0 A20=1 SMM=0 HLT=0                                                                                 
+ES =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+CS =0018 0000000000000000 ffffffff 00a09b00 DPL=0 CS64 [-RA]                                                                                             
+SS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+DS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+FS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+GS =0008 0000000000000000 ffffffff 00c09300 DPL=0 DS   [-WA]                                                                                             
+LDT=0000 0000000000000000 0000ffff 00008200 DPL=0 LDT                                                                                                    
+TR =0000 0000000000000000 0000ffff 00008b00 DPL=0 TSS64-busy                                                                                             
+GDT=     00000000ffffff10 00000027                                                                                                                       
+IDT=     000000000080edd8 0000021f                                                                                                                       
+CR0=80000033 CR2=0000000000000000 CR3=0000000000800000 CR4=00000660                                                                                      
+DR0=0000000000000000 DR1=0000000000000000 DR2=0000000000000000 DR3=0000000000000000                                                                      
+DR6=00000000ffff0ff0 DR7=0000000000000400                                                                                                                
+EFER=0000000000000d00                                                                                                                                    
+Code=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <00> 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
