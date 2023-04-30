@@ -210,7 +210,6 @@ set -- "${POSITIONAL_ARGS[@]}"  # restore positional parameters
 
 
 [[ -d "$BUILD_DIR" ]] || fatal "invalid path to build directory \"$BUILD_DIR\""
-echo $BUILD_DIR
 
 # if output should be saved in script: delete old script file if it exists
 [[ $PRINT_SCRIPT -eq 1 ]] && [[ -f $SCRIPT_NAME ]] && rm $SCRIPT_NAME
