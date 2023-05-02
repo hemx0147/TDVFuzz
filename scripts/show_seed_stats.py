@@ -3,14 +3,14 @@ import os
 import argparse
 
 SCRIPTS_DIR = os.environ["BKC_ROOT"] + '/scripts'
-LOG_FILE = SCRIPTS_DIR + '/fuzz.log'
+LOG_FILE = os.environ["KAFL_WORKDIR"] + '/kafl_fuzzer.log'
 
 PL_RE = re.compile(r"payload_[0-9a-zA-Z_-]+")
 SEED_RE = re.compile(r"seed_[0-9]+")
-COPY_RE = re.compile(r"copying .* -> seed_[0-9]+")
-USEFUL_RE = re.compile(r"Received new input .*:")
-USELESS_RE = re.compile(r"Worker-[0-9]+ Imported payload produced no new coverage, skipping\.\.")
-INVALID_RE = re.compile(r"Worker-[0-9]+ (Input validation failed! Target funky\?\.\.|Guest ABORT:.+)")
+COPY_RE = re.compile(r".+copying .* -> seed_[0-9]+")
+USEFUL_RE = re.compile(r".+(Received new input .*:|Received Ctrl-C, killing workers...)")
+USELESS_RE = re.compile(r".+Worker-[0-9]+ Imported payload produced no new coverage, skipping\.\.")
+INVALID_RE = re.compile(r".+Worker-[0-9]+ (Input validation failed! Target funky\?\.\.|Guest ABORT:.+)")
 
 def get_seeds_from_attribute(lines: dict, attr_re) -> list:
   attr_lines = {i: line for i, line in lines.items() if attr_re.match(line)}
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     '-l',
     metavar='LOGFILE',
     type=str,
-    help='Path to a file containing debug prints of a qemu TDVF session (default: BKC_ROOT/scripts/fuzz.log)',
+    help='Path to a file containing debug prints of a qemu TDVF session (default: KAFL_WORKDIR/kafl_fuzzer.log)',
     required=False,
     default=LOG_FILE
   )

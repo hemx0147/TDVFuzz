@@ -11,7 +11,7 @@
 
 SEEDS_DIR="$BKC_ROOT/sharedir"
 SCRIPTS_DIR="$BKC_ROOT/scripts"
-LOG_FILE="$SCRIPTS_DIR/fuzz.log"
+LOG_FILE="$KAFL_WORKDIR/kafl_fuzzer.log"
 FUZZ_SCRIPT=$SCRIPTS_DIR/build-n-fuzz.sh
 SEED_INFO_SCRIPT=$SCRIPTS_DIR/show_seed_stats.py
 
@@ -39,7 +39,7 @@ function clean_and_exit()
 [[ -f $SEED_INFO_SCRIPT ]] || fatal "no such file or directory \"$SEED_INFO_SCRIPT\""
 
 # run fuzzer once and create log file with info about copied seeds
-$FUZZ_SCRIPT -v 2>&1 | tee $LOG_FILE
+$FUZZ_SCRIPT -v
 [[ -f $LOG_FILE ]] || fatal "no such file or directory \"$LOG_FILE\""
 SEED_INFO=$(grep -E "copying .* -> seed_[0-9]+" $LOG_FILE)
 if [[ -z $SEED_INFO ]]
