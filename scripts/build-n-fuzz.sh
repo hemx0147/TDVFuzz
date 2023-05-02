@@ -143,7 +143,7 @@ function run_fuzzer()
     popd > /dev/null
 }
 
-function update_kafl_agent_state_address()
+function update_kafl_agent_state_pointer_address()
 {
     # update kafl agent with correct state address if hardcoded & real addresses do not match
     verbose_print "Global kAFL agent state addresses do not match. Updating kAFL agent library."
@@ -234,14 +234,14 @@ edk_setup
 # start fuzzer with 1 worker & high verbosity (to detect issues before proper fuzzing session)
 run_fuzzer
 
-AGENT_STATE_ERROR=$(grep "KAFL AGENT STATE ADDRESS MISMATCH!" $KAFL_LOG)
-AGENT_PAYLOAD_ERROR=$(grep "KAFL AGENT PAYLOAD BUFFER ADDRESS MISMATCH!" $KAFL_LOG)
+AGENT_STATE_ERROR=$(grep "KAFL AGENT STATE POINTER ADDRESS MISMATCH!" $KAFL_LOG)
+AGENT_PAYLOAD_ERROR=$(grep "KAFL AGENT PAYLOAD BUFFER SPACE ADDRESS MISMATCH!" $KAFL_LOG)
 
 RERUN=0
 if [[ -n $AGENT_STATE_ERROR ]]
 then
     RERUN=1
-    update_kafl_agent_state_address "$AGENT_STATE_ERROR"
+    update_kafl_agent_state_pointer_address "$AGENT_STATE_ERROR"
 fi
 if [[ -n $AGENT_PAYLOAD_ERROR ]]
 then
