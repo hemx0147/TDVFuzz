@@ -1,3 +1,4 @@
 name: io-pack
 version: 0.0.0
-libraryPathDependencies: codeql/cpp-all
+dependencies:
+  codeql/cpp-all: '*'
