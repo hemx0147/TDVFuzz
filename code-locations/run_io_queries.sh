@@ -45,7 +45,7 @@ RES_DIR="./results"
 [[ -d "$RES_DIR" ]] || mkdir "$RES_DIR"
 
 # run all queries against database
-OUTFILE="$RES_DIR/tdvf-io.csv"
+OUTFILE="$RES_DIR/tdvf-virtio.csv"
 codeql database analyze "$QLDB" "$QLPACK" --format=csv --output="$OUTFILE" --rerun
 
 # write results of previous queries in individual result files
@@ -55,4 +55,10 @@ do
   COMP_NAME="${COMP_BASE_NAME%.*}"
   COMP_FILE="$COMP_NAME.csv"
   codeql database analyze "$QLDB" "$QLPACK/$query" --format=csv --output="$RES_DIR/$COMP_FILE"
+done
+
+# clean results data
+for result in $(find $RES_DIR -type f -name "*.csv")
+do
+  ./clean_results.sh $result
 done
