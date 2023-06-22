@@ -13,6 +13,7 @@ TDVF_DIR=os.environ['TDVF_ROOT']
 TDVF_BUILD_DIR=TDVF_DIR + '/Build'
 LOG_DIR=os.environ['KAFL_WORKDIR']
 LOG_FILE=LOG_DIR + '/hprintf_00.log'
+MODULE_BIN_REL_PATH='DEBUG_GCC5/X64'
 
 # memory addresses have typical hex format (length 10 to 12)
 ADDRESS_RE = re.compile(r'0x[0-9a-fA-F]{8,16}')
@@ -67,6 +68,16 @@ def get_secmain_name_and_address(map_file: str) -> Tuple[str, Address]:
     base_addr_line = next(filter(lambda line: re.findall(ba_re, line), lines))
     base_addr = re.findall(ba_re, base_addr_line)[0].split('=')[1]
     return 'SecMain', Address(base_addr)
+
+def get_module_binary_path(build_dir: str) -> str:
+    x64_dir = build_dir + '/**/DEBUG_GCC5/X64'
+    bin_path = glob.glob(x64_dir, recursive=True)[0]
+    # verify that directory has .debug and .efi files
+    dbg_files = glob.glob(bin_path + '/*.debug', recursive=False)
+    efi_files = glob.glob(bin_path + '/*.efi', recursive=False)
+    assert dbg_files, f'directory "{bin_path}" does not contain module .debug files'
+    assert efi_files, f'directory "{bin_path}" does not contain module .efi files'
+    return bin_path
 
 def get_module_debug_file_paths(build_dir: str) -> Dict[str, str]:
     '''find all module .debug files in directory search_dir and return a dict of modules and their paths'''
@@ -177,9 +188,8 @@ if __name__ == "__main__":
     module_table = TdvfModuleTable(modules)
 
     # find module debug files & add paths
-    module_paths = get_module_debug_file_paths(build_dir)
-    for name, module in module_table.modules.items():
-        module.d_path = module_paths[name]
+    binary_path = get_module_binary_path(build_dir)
+    module_table.set_module_paths(binary_path)
 
     # add missing .text info
     module_table.fill_text_info()
