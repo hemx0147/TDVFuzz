@@ -33,9 +33,6 @@
     - role: smatch
       tags:
         - smatch
-    - role: peinfo
-      tags:
-        - peinfo
     - role: codeql
       tags:
         - codeql

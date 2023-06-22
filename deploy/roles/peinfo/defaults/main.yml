@@ -1,3 +1,0 @@
-peinfo_url: https://github.com/hemx0147/peinfo.git
-peinfo_revision: 'master'
-peinfo_root: "{{ install_root }}/peinfo"

@@ -14,7 +14,6 @@ bkc/coverage/fast_matcher/target/
 # tools
 /kafl/
 /smatch/
-/peinfo/
 codeql-home/
 
 # targets
