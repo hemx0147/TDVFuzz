@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 ##
-# List unique instruction pointers (RIPs) for a given exception type in kAFL log files (crash/kasan/timeout).
+# List unique instruction pointers (RIPs) and number of their occurance for a given exception type in kAFL log files (crash/kasan/timeout).
 #
 # If no ECEPTION_NO is provided, then unique RIPs for all occuring exception types are listed.
 #
@@ -15,6 +15,8 @@
 # Parameters:
 #   EXCEPTION_NO    Hexdigits of exception vector number according to https://wiki.osdev.org/Exceptions
 #                   (e.g. 06 for Invalid Opcode, 0E for Page Fault, etc.)
+##
+# Note: in some cases the exception data stored in crash log is not correctly formatted. This script may not work correctly in this case.
 ##
 
 
@@ -101,15 +103,17 @@ then
   # grep only RIP line
   # print RIP and file paths only
   # result cleanup: remove ","
-  # show only uniqe (per file) results (sort + uniq)
+  # show only unique results (sort + unique) and print their number of occurence as well
+  # replace leading spaces
   # replace leading zeroes by "0x" (do this last so sort works as intended)
-  grep -HA2 "Exception Type - $EXNUM" $LOG_DIR/*.log | grep RIP | sed 's/-RIP//' | awk '{print $1" "$3}' | tr -d ',' | sort -k2 | uniq | sed 's/ 0\+/ 0x/'
+  grep -HA2 "Exception Type - $EXNUM" $LOG_DIR/*.log | grep RIP | sed 's/-RIP//' | awk '{print $1" "$3}' | tr -d ',' | sort -k2 | uniq -c | sed 's/^\ \+//' | sed 's/ 0\+/ 0x/'
 else
   # grep exception type in logs
   # grep only RIP line
   # print RIP only
   # result cleanup: remove ","
-  # show only unique results (sort + unique)
+  # show only unique results (sort + unique) and print their number of occurence as well
+  # replace leading spaces
   # replace leading zeroes by "0x" (do this last so sort works as intended)
-  grep -A2 "Exception Type - $EXNUM" $LOG_DIR/*.log | grep RIP | awk '{print $3}' | tr -d ',' | sort | uniq | sed 's/^0\+/0x/'
+  grep -A2 "Exception Type - $EXNUM" $LOG_DIR/*.log | grep RIP | awk '{print $3}' | tr -d ',' | sort | uniq -c | sed 's/^\ \+//' | sed 's/ 0\+/ 0x/'
 fi
