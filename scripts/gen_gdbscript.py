@@ -62,16 +62,16 @@ def hex_format(address):
   return HexAddress.verify_hex_format(address)
 
 def create_import_line(module: TdvfModule) -> str:
-  '''Build a module-import line for importing debug symbols using the `add-symbol-file` GDB command.'''
+  '''Build a module-import line for importing debug symbols using the `add-symbol-file` GDB command. This command requires the start address of the module's `.text` to provide the information properly.'''
   if not module:
     raise ValueError('argument "module" is empty or None.')
-  dbg = module.d_path
-  base = module.img_base
+  dbg = module.dbg_path
+  text_addr = module.t_start
   if not dbg:
-    raise ValueError('module debug path is empty or None.')
-  if not base:
-    raise ValueError('module base address is empty or None.')
-  return f"add-symbol-file {dbg} {base}"
+    raise ValueError(f'invalid module debug path "{dbg}".')
+  if not text_addr:
+    raise ValueError(f'invalid module .text address "{text_addr}"')
+  return f"add-symbol-file {dbg} {text_addr}"
 
 def create_all_import_lines(modules:List[TdvfModule]) -> List[str]:
   '''Build all module-import lines to import all necessary debug symbols using the `add-symbol-file` GDB command.'''
